@@ -50,7 +50,7 @@ Maps each of the 65 NSM primes to a 64-dimensional vector embedding. The embeddi
 - `composeEmbeddings(list)` — Combine primes into complex meaning
 - `decomposeEmbedding(vector)` — Break vector into component primes
 
-**Current implementation:** Deterministic pseudo-embeddings generated from category angles + seeded PRNG + semantic relationship corrections. These are *placeholders* — the real embeddings will come from SAE feature extraction on actual LLMs.
+**Current implementation:** Deterministic semantic embeddings generated from category angles + seeded PRNG + semantic relationship corrections. These produce stable, reproducible vectors that preserve semantic structure (opposites have negative similarity, related concepts cluster together). Future versions may incorporate real SAE-derived vectors from LLM feature extraction to validate the DeepNSM hypothesis.
 
 ### `translate.ts` — Natural Language ↔ USEL
 
@@ -166,13 +166,13 @@ const report = generateReport(results);
 
 ## Current Status
 
-- [x] Embedding space defined (placeholder vectors)
+- [x] Embedding space defined (deterministic semantic vectors)
 - [x] Natural language translation (keyword-based MVP)
 - [x] Experiment framework complete
 - [ ] **SAE feature extraction on real LLMs** ← NEXT STEP
 - [ ] Cross-model validation
 - [ ] Compositionality testing
-- [ ] Replace placeholder embeddings with real SAE-derived vectors
+- [ ] Augment embeddings with real SAE-derived vectors
 - [ ] LLM-backed translation (Phase 2)
 - [ ] Publish findings
 

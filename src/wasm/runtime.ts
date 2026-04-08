@@ -33,8 +33,8 @@ function createEnvImports(stdout: string[]): WebAssembly.ModuleImports {
       stdout.push(String(v));
     },
     print_string(_ptr: number, _len: number) {
-      // Reading from linear memory requires access to the instance, which we
-      // patch in after instantiation if needed. For now this is a placeholder.
+      // Initial stub — patched with real linear memory reader in executeWASM()
+      // after the instance is available. See lines 90-98 below.
       stdout.push('[string]');
     },
   };
