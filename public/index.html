@@ -1,0 +1,783 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>USEL Editor v1.0</title>
+<style>
+/* ===== RESET & BASE ===== */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0d0d1a;--bg2:#111128;--card:#16213e;--card2:#1a1a3e;
+  --accent:#0f3460;--accent2:#533483;--glow:#e94560;
+  --text:#e0e0e0;--text2:#8892b0;--text3:#495670;
+  --green:#2ecc71;--red:#e74c3c;--yellow:#f1c40f;
+  --radius:10px;--transition:.22s ease;
+  --font:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;
+}
+html,body{height:100%;font-family:var(--font);background:var(--bg);color:var(--text);overflow:hidden}
+button{font-family:inherit;cursor:pointer;border:none;outline:none}
+::-webkit-scrollbar{width:6px}
+::-webkit-scrollbar-track{background:var(--bg2)}
+::-webkit-scrollbar-thumb{background:var(--accent);border-radius:3px}
+
+/* ===== APP LAYOUT ===== */
+#app{display:flex;flex-direction:column;height:100vh}
+
+/* — Header — */
+.header{
+  display:flex;align-items:center;gap:16px;
+  padding:10px 20px;background:var(--bg2);
+  border-bottom:1px solid var(--accent);
+  flex-shrink:0;
+}
+.header h1{
+  font-size:15px;font-weight:600;letter-spacing:.5px;
+  background:linear-gradient(135deg,var(--glow),var(--accent2));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  white-space:nowrap;
+}
+.header .sep{width:1px;height:24px;background:var(--accent);flex-shrink:0}
+.toolbar{display:flex;gap:8px;align-items:center}
+.toolbar select,.toolbar button{
+  font-size:12px;padding:6px 14px;border-radius:6px;
+  background:var(--card);color:var(--text);
+  border:1px solid var(--accent);transition:var(--transition);
+}
+.toolbar select:hover,.toolbar button:hover{background:var(--accent);border-color:var(--accent2)}
+.toolbar .btn-run{background:#1b5e20;border-color:#2e7d32}
+.toolbar .btn-run:hover{background:#2e7d32}
+.toolbar .btn-clear{background:#4a1425;border-color:#7b1e3a}
+.toolbar .btn-clear:hover{background:#7b1e3a}
+.toolbar .btn-export{background:#1a237e;border-color:#283593}
+.toolbar .btn-export:hover{background:#283593}
+
+/* — Main panels — */
+.main{display:flex;flex:1;min-height:0}
+
+/* — Palette — */
+.palette{
+  width:220px;flex-shrink:0;display:flex;flex-direction:column;
+  background:var(--bg2);border-right:1px solid var(--accent);
+}
+.palette-head{
+  padding:12px 14px 8px;font-size:12px;font-weight:600;
+  color:var(--text2);text-transform:uppercase;letter-spacing:1px;
+  border-bottom:1px solid var(--accent);display:flex;align-items:center;gap:6px;
+}
+.palette-search{
+  margin:8px 10px;padding:6px 10px;border-radius:6px;
+  background:var(--card);border:1px solid var(--accent);
+  color:var(--text);font-size:12px;outline:none;
+}
+.palette-search::placeholder{color:var(--text3)}
+.palette-search:focus{border-color:var(--glow)}
+.palette-list{flex:1;overflow-y:auto;padding:4px 8px 12px}
+
+.sym-tile{
+  display:flex;align-items:center;gap:10px;
+  padding:8px 10px;margin-bottom:4px;border-radius:8px;
+  cursor:pointer;transition:var(--transition);
+  border:1px solid transparent;
+}
+.sym-tile:hover{background:var(--card);border-color:var(--accent)}
+.sym-glyph{
+  width:36px;height:36px;display:flex;align-items:center;justify-content:center;
+  font-size:20px;border-radius:8px;flex-shrink:0;
+  background:rgba(255,255,255,.06);
+}
+.sym-info{display:flex;flex-direction:column;min-width:0}
+.sym-name{font-size:12px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sym-cat{font-size:10px;color:var(--text2);text-transform:uppercase;letter-spacing:.5px}
+
+/* — Canvas — */
+.canvas-wrap{
+  flex:1;display:flex;flex-direction:column;
+  background:var(--bg);position:relative;overflow:hidden;
+}
+.canvas-label{
+  position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+  color:var(--text3);font-size:14px;pointer-events:none;
+  text-align:center;line-height:1.6;transition:opacity .3s;
+}
+.canvas-label.hidden{opacity:0}
+#canvas{
+  flex:1;display:flex;flex-wrap:wrap;align-content:flex-start;
+  gap:8px;padding:20px;overflow-y:auto;position:relative;
+  min-height:0;
+}
+
+/* — Canvas tiles — */
+.cv-tile{
+  display:flex;align-items:center;gap:8px;
+  padding:10px 14px;border-radius:10px;
+  background:var(--card);border:2px solid var(--accent);
+  cursor:grab;user-select:none;position:relative;
+  transition:transform .18s,box-shadow .18s,border-color .3s;
+  animation:tilePop .3s cubic-bezier(.34,1.56,.64,1);
+}
+.cv-tile:active{cursor:grabbing;transform:scale(1.06)}
+.cv-tile.dragging{opacity:.5;pointer-events:none}
+.cv-tile .glyph{font-size:22px}
+.cv-tile .label{font-size:13px;font-weight:600}
+.cv-tile .remove{
+  position:absolute;top:-6px;right:-6px;
+  width:18px;height:18px;border-radius:50%;
+  background:var(--red);color:#fff;font-size:11px;
+  display:flex;align-items:center;justify-content:center;
+  opacity:0;transition:opacity .15s;cursor:pointer;
+}
+.cv-tile:hover .remove{opacity:1}
+.cv-tile.valid{border-color:var(--green)}
+.cv-tile.invalid{border-color:var(--red);animation:shake .35s}
+
+.cv-arrow{
+  display:flex;align-items:center;color:var(--text3);font-size:18px;
+  padding:0 2px;flex-shrink:0;
+}
+.cv-arrow.valid-arrow{color:var(--green)}
+.cv-arrow.invalid-arrow{color:var(--red)}
+
+@keyframes tilePop{
+  0%{transform:scale(.6);opacity:0}
+  100%{transform:scale(1);opacity:1}
+}
+@keyframes shake{
+  0%,100%{transform:translateX(0)}
+  25%{transform:translateX(-4px)}
+  75%{transform:translateX(4px)}
+}
+
+/* — Drop zone indicator — */
+.canvas-wrap.drag-over::after{
+  content:'';position:absolute;inset:0;
+  border:2px dashed var(--glow);border-radius:var(--radius);
+  pointer-events:none;opacity:.4;
+}
+
+/* — Output — */
+.output{
+  width:300px;flex-shrink:0;display:flex;flex-direction:column;
+  background:var(--bg2);border-left:1px solid var(--accent);
+}
+.output-head{
+  padding:12px 14px 8px;font-size:12px;font-weight:600;
+  color:var(--text2);text-transform:uppercase;letter-spacing:1px;
+  border-bottom:1px solid var(--accent);
+}
+.output-body{flex:1;overflow-y:auto;padding:12px 14px}
+.out-section{margin-bottom:16px}
+.out-label{
+  font-size:10px;font-weight:700;color:var(--text3);
+  text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;
+}
+.out-code{
+  font-family:'SF Mono','Fira Code','Cascadia Code',monospace;
+  font-size:12px;line-height:1.6;padding:10px 12px;
+  background:var(--card);border-radius:8px;
+  white-space:pre-wrap;word-break:break-all;
+  border:1px solid var(--accent);color:var(--text);
+}
+.out-code.usel{color:var(--glow)}
+.out-code.js{color:#f1c40f}
+.out-code.py{color:#3498db}
+.out-code.en{color:var(--green)}
+
+.run-output{margin-top:12px}
+.run-output .out-code{border-color:var(--green);color:var(--green)}
+.run-output .out-code.error{border-color:var(--red);color:var(--red)}
+
+/* — Status bar — */
+.status{
+  display:flex;align-items:center;gap:16px;
+  padding:6px 20px;background:var(--bg2);
+  border-top:1px solid var(--accent);font-size:11px;color:var(--text3);
+  flex-shrink:0;
+}
+.status .dot{width:6px;height:6px;border-radius:50%;background:var(--green);margin-right:4px;display:inline-block}
+
+/* — Toast — */
+.toast{
+  position:fixed;bottom:60px;left:50%;transform:translateX(-50%) translateY(20px);
+  padding:10px 24px;border-radius:8px;background:var(--accent2);
+  color:#fff;font-size:13px;font-weight:500;opacity:0;
+  transition:all .3s ease;pointer-events:none;z-index:999;
+}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* ===== RESPONSIVE ===== */
+@media(max-width:900px){
+  .palette{width:160px}
+  .output{width:220px}
+}
+@media(max-width:640px){
+  .main{flex-direction:column}
+  .palette,.output{width:100%;height:30vh;border:none;border-bottom:1px solid var(--accent)}
+}
+</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- HEADER -->
+  <div class="header">
+    <h1>✦ USEL Editor v1.0 — Universal Symbolic Executable Language</h1>
+    <div class="sep"></div>
+    <div class="toolbar">
+      <select id="levelSelect" title="Complexity level">
+        <option value="1">Level 1 (Age 5-7)</option>
+        <option value="2">Level 2 (Age 8-12)</option>
+        <option value="3">Level 3 (Age 13+)</option>
+      </select>
+      <button class="btn-clear" id="btnClear" title="Clear canvas">✕ Clear</button>
+      <button class="btn-run" id="btnRun" title="Run generated JS">▶ Run</button>
+      <button class="btn-export" id="btnExport" title="Copy USEL to clipboard">⎘ Export</button>
+    </div>
+  </div>
+
+  <!-- MAIN -->
+  <div class="main">
+
+    <!-- PALETTE -->
+    <div class="palette">
+      <div class="palette-head">⬡ Symbol Palette</div>
+      <input class="palette-search" id="paletteSearch" placeholder="Search symbols…" type="text">
+      <div class="palette-list" id="paletteList"></div>
+    </div>
+
+    <!-- CANVAS -->
+    <div class="canvas-wrap" id="canvasWrap">
+      <div class="canvas-label" id="canvasLabel">
+        Drop tiles here to compose meaning…<br>
+        <span style="font-size:12px;opacity:.6">Click a symbol in the palette to add it</span>
+      </div>
+      <div id="canvas"></div>
+    </div>
+
+    <!-- OUTPUT -->
+    <div class="output">
+      <div class="output-head">⟩ Output</div>
+      <div class="output-body" id="outputBody">
+        <div class="out-section"><div class="out-label">USEL</div><div class="out-code usel" id="outUSEL">—</div></div>
+        <div class="out-section"><div class="out-label">JavaScript</div><div class="out-code js" id="outJS">—</div></div>
+        <div class="out-section"><div class="out-label">Python</div><div class="out-code py" id="outPY">—</div></div>
+        <div class="out-section"><div class="out-label">English</div><div class="out-code en" id="outEN">—</div></div>
+        <div class="run-output" id="runOutput" style="display:none">
+          <div class="out-label">Run Result</div>
+          <div class="out-code" id="outRun"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- STATUS -->
+  <div class="status">
+    <span><span class="dot"></span> Ready</span>
+    <span id="statusSymbols">Symbols: 0</span>
+    <span id="statusLevel">Level: 1 (Age 5-7)</span>
+    <span id="statusValid" style="margin-left:auto">—</span>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+// =========================================================================
+//  USEL PRIME DEFINITIONS  (Level 1: ~30 primes, Level 2: ~50, Level 3: 65)
+// =========================================================================
+
+const PRIMES = [
+  // ── SUBSTANTIVE (subject / object nouns) ───────────────────────────
+  { id:'I',       name:'I',       tier:0, category:'substantive', level:1, glyph:'◉',  color:'#E74C3C', accepts:['modifier','condition'], provides:['subject','object'], pronunciation:{en:'I',es:'yo'},  description:'First person (self)' },
+  { id:'YOU',     name:'YOU',     tier:0, category:'substantive', level:1, glyph:'👤', color:'#E74C3C', accepts:['modifier','condition'], provides:['subject','object'], pronunciation:{en:'you',es:'tú'}, description:'Second person' },
+  { id:'SOMEONE', name:'SOMEONE', tier:0, category:'substantive', level:1, glyph:'👥', color:'#E74C3C', accepts:['modifier','condition'], provides:['subject','object'], pronunciation:{en:'someone',es:'alguien'}, description:'An unspecified person' },
+  { id:'SOMETHING',name:'SOMETHING',tier:0,category:'substantive',level:1, glyph:'◇',  color:'#E74C3C', accepts:['modifier','condition'], provides:['subject','object'], pronunciation:{en:'something',es:'algo'}, description:'An unspecified thing' },
+  { id:'PEOPLE',  name:'PEOPLE',  tier:0, category:'substantive', level:1, glyph:'👫', color:'#E74C3C', accepts:['modifier','condition'], provides:['subject','object'], pronunciation:{en:'people',es:'gente'}, description:'Multiple persons' },
+  { id:'BODY',    name:'BODY',    tier:0, category:'substantive', level:2, glyph:'🏛',  color:'#E74C3C', accepts:['modifier','condition'], provides:['subject','object'], pronunciation:{en:'body'}, description:'Physical form' },
+
+  // ── RELATIONAL (verbs / relations) ─────────────────────────────────
+  { id:'WANT',    name:'WANT',    tier:0, category:'relational', level:1, glyph:'◈',  color:'#E67E22', accepts:['subject','object','modifier'], provides:['predicate'], pronunciation:{en:'want',es:'querer'}, description:'To desire' },
+  { id:'KNOW',    name:'KNOW',    tier:0, category:'mental',     level:1, glyph:'🧠', color:'#9B59B6', accepts:['subject','object'],           provides:['predicate'], pronunciation:{en:'know',es:'saber'},  description:'To have knowledge' },
+  { id:'THINK',   name:'THINK',   tier:0, category:'mental',     level:1, glyph:'💭', color:'#9B59B6', accepts:['subject','object'],           provides:['predicate'], pronunciation:{en:'think',es:'pensar'}, description:'To cogitate' },
+  { id:'FEEL',    name:'FEEL',    tier:0, category:'mental',     level:1, glyph:'💗', color:'#9B59B6', accepts:['subject','object'],           provides:['predicate'], pronunciation:{en:'feel',es:'sentir'}, description:'To experience emotion' },
+  { id:'SEE',     name:'SEE',     tier:0, category:'mental',     level:1, glyph:'👁',  color:'#9B59B6', accepts:['subject','object'],           provides:['predicate'], pronunciation:{en:'see',es:'ver'},     description:'To perceive visually' },
+  { id:'HEAR',    name:'HEAR',    tier:0, category:'mental',     level:1, glyph:'👂', color:'#9B59B6', accepts:['subject','object'],           provides:['predicate'], pronunciation:{en:'hear',es:'oír'},    description:'To perceive auditorily' },
+  { id:'SAY',     name:'SAY',     tier:0, category:'speech',     level:1, glyph:'💬', color:'#E91E63', accepts:['subject','object','value'],   provides:['predicate'], pronunciation:{en:'say',es:'decir'},   description:'To utter' },
+  { id:'DO',      name:'DO',      tier:0, category:'action',     level:1, glyph:'🏃', color:'#FF5722', accepts:['subject','object'],           provides:['predicate'], pronunciation:{en:'do',es:'hacer'},    description:'To perform an action' },
+  { id:'MOVE',    name:'MOVE',    tier:0, category:'action',     level:1, glyph:'➡',  color:'#FF5722', accepts:['subject','object'],           provides:['predicate'], pronunciation:{en:'move',es:'mover'},  description:'To change position' },
+  { id:'HAPPEN',  name:'HAPPEN',  tier:0, category:'action',     level:1, glyph:'⚡', color:'#FF5722', accepts:['subject','modifier'],         provides:['predicate'], pronunciation:{en:'happen'},           description:'To occur' },
+  { id:'MAKE',    name:'MAKE',    tier:0, category:'action',     level:2, glyph:'🔨', color:'#FF5722', accepts:['subject','object'],           provides:['predicate'], pronunciation:{en:'make'},             description:'To create / cause' },
+  { id:'HAVE',    name:'HAVE',    tier:0, category:'relational', level:2, glyph:'✋', color:'#E67E22', accepts:['subject','object','modifier'], provides:['predicate'], pronunciation:{en:'have'},             description:'Possession' },
+  { id:'GIVE',    name:'GIVE',    tier:0, category:'action',     level:2, glyph:'🎁', color:'#FF5722', accepts:['subject','object'],           provides:['predicate'], pronunciation:{en:'give'},             description:'To transfer' },
+  { id:'TAKE',    name:'TAKE',    tier:0, category:'action',     level:2, glyph:'🤲', color:'#FF5722', accepts:['subject','object'],           provides:['predicate'], pronunciation:{en:'take'},             description:'To acquire' },
+
+  // ── EVALUATORS ─────────────────────────────────────────────────────
+  { id:'GOOD',    name:'GOOD',    tier:0, category:'evaluator', level:1, glyph:'👍', color:'#1ABC9C', accepts:['subject','object'], provides:['modifier','predicate'], pronunciation:{en:'good',es:'bueno'}, description:'Positive evaluation' },
+  { id:'BAD',     name:'BAD',     tier:0, category:'evaluator', level:1, glyph:'👎', color:'#1ABC9C', accepts:['subject','object'], provides:['modifier','predicate'], pronunciation:{en:'bad',es:'malo'},   description:'Negative evaluation' },
+  { id:'BIG',     name:'BIG',     tier:0, category:'descriptor', level:1, glyph:'⬆',  color:'#3498DB', accepts:['subject','object'], provides:['modifier'],             pronunciation:{en:'big',es:'grande'}, description:'Large in size' },
+  { id:'SMALL',   name:'SMALL',   tier:0, category:'descriptor', level:1, glyph:'⬇',  color:'#3498DB', accepts:['subject','object'], provides:['modifier'],             pronunciation:{en:'small',es:'pequeño'}, description:'Small in size' },
+
+  // ── DETERMINERS ────────────────────────────────────────────────────
+  { id:'THIS',    name:'THIS',    tier:0, category:'determiner', level:1, glyph:'☞',  color:'#F1C40F', accepts:['subject','object'], provides:['modifier'], pronunciation:{en:'this',es:'esto'},   description:'Proximal demonstrative' },
+  { id:'THE_SAME',name:'THE SAME',tier:0, category:'determiner', level:1, glyph:'≡',  color:'#F1C40F', accepts:['subject','object'], provides:['modifier'], pronunciation:{en:'the same'},          description:'Identity marker' },
+  { id:'OTHER',   name:'OTHER',   tier:0, category:'determiner', level:2, glyph:'↔',  color:'#F1C40F', accepts:['subject','object'], provides:['modifier'], pronunciation:{en:'other'},             description:'Different referent' },
+
+  // ── QUANTIFIERS ────────────────────────────────────────────────────
+  { id:'ONE',     name:'ONE',     tier:0, category:'quantifier', level:1, glyph:'①',  color:'#2ECC71', accepts:['subject','object'], provides:['modifier','value'], pronunciation:{en:'one',es:'uno'},   description:'Single unit' },
+  { id:'TWO',     name:'TWO',     tier:0, category:'quantifier', level:1, glyph:'②',  color:'#2ECC71', accepts:['subject','object'], provides:['modifier','value'], pronunciation:{en:'two',es:'dos'},   description:'Two units' },
+  { id:'MANY',    name:'MANY',    tier:0, category:'quantifier', level:1, glyph:'∞',  color:'#2ECC71', accepts:['subject','object'], provides:['modifier','value'], pronunciation:{en:'many',es:'muchos'},description:'Large quantity' },
+  { id:'ALL',     name:'ALL',     tier:0, category:'quantifier', level:2, glyph:'⊕',  color:'#2ECC71', accepts:['subject','object'], provides:['modifier','value'], pronunciation:{en:'all'},             description:'Every member' },
+
+  // ── LOGICAL ────────────────────────────────────────────────────────
+  { id:'NOT',     name:'NOT',     tier:0, category:'logical', level:1, glyph:'¬',  color:'#2196F3', accepts:['value','condition'],  provides:['operator','condition'], pronunciation:{en:'not',es:'no'}, description:'Negation' },
+  { id:'IF',      name:'IF',      tier:0, category:'logical', level:2, glyph:'⎇',  color:'#2196F3', accepts:['value','condition'],  provides:['condition','operator'], pronunciation:{en:'if'},            description:'Conditional' },
+  { id:'BECAUSE', name:'BECAUSE', tier:0, category:'logical', level:2, glyph:'∵',  color:'#2196F3', accepts:['value','condition'],  provides:['condition','operator'], pronunciation:{en:'because'},       description:'Causal link' },
+  { id:'AND',     name:'AND',     tier:0, category:'logical', level:2, glyph:'∧',  color:'#2196F3', accepts:['value','condition'],  provides:['operator','condition'], pronunciation:{en:'and'},            description:'Conjunction' },
+  { id:'OR',      name:'OR',      tier:0, category:'logical', level:2, glyph:'∨',  color:'#2196F3', accepts:['value','condition'],  provides:['operator','condition'], pronunciation:{en:'or'},             description:'Disjunction' },
+
+  // ── TIME ───────────────────────────────────────────────────────────
+  { id:'NOW',     name:'NOW',     tier:0, category:'time', level:1, glyph:'⏺',  color:'#00BCD4', accepts:['value'],  provides:['modifier','condition'], pronunciation:{en:'now',es:'ahora'}, description:'Present moment' },
+  { id:'BEFORE',  name:'BEFORE',  tier:0, category:'time', level:2, glyph:'⏪', color:'#00BCD4', accepts:['value'],  provides:['modifier','condition'], pronunciation:{en:'before'}, description:'Prior time' },
+  { id:'AFTER',   name:'AFTER',   tier:0, category:'time', level:2, glyph:'⏩', color:'#00BCD4', accepts:['value'],  provides:['modifier','condition'], pronunciation:{en:'after'},  description:'Later time' },
+
+  // ── SPACE ──────────────────────────────────────────────────────────
+  { id:'HERE',    name:'HERE',    tier:0, category:'space', level:1, glyph:'📍', color:'#4CAF50', accepts:['value','subject'], provides:['modifier'], pronunciation:{en:'here',es:'aquí'}, description:'This place' },
+  { id:'ABOVE',   name:'ABOVE',   tier:0, category:'space', level:2, glyph:'⤴',  color:'#4CAF50', accepts:['value','subject'], provides:['modifier'], pronunciation:{en:'above'}, description:'Higher position' },
+  { id:'BELOW',   name:'BELOW',   tier:0, category:'space', level:2, glyph:'⤵',  color:'#4CAF50', accepts:['value','subject'], provides:['modifier'], pronunciation:{en:'below'}, description:'Lower position' },
+  { id:'INSIDE',  name:'INSIDE',  tier:0, category:'space', level:2, glyph:'⊂',  color:'#4CAF50', accepts:['value','subject'], provides:['modifier'], pronunciation:{en:'inside'}, description:'Contained within' },
+
+  // ── EXISTENCE / LIFE ───────────────────────────────────────────────
+  { id:'EXIST',   name:'EXIST',   tier:0, category:'existence', level:2, glyph:'∃',  color:'#795548', accepts:['subject','modifier'], provides:['predicate','subject'], pronunciation:{en:'exist'}, description:'To be' },
+  { id:'LIVE',    name:'LIVE',    tier:0, category:'life',      level:1, glyph:'🌱', color:'#607D8B', accepts:['modifier'],           provides:['predicate','subject'], pronunciation:{en:'live',es:'vivir'}, description:'To be alive' },
+  { id:'DIE',     name:'DIE',     tier:0, category:'life',      level:2, glyph:'☠',  color:'#607D8B', accepts:['modifier'],           provides:['predicate','subject'], pronunciation:{en:'die'},              description:'To cease living' },
+
+  // ── INTENSIFIER / SIMILARITY ───────────────────────────────────────
+  { id:'VERY',    name:'VERY',    tier:0, category:'intensifier', level:1, glyph:'‼',  color:'#FF9800', accepts:['modifier','value'], provides:['modifier'],           pronunciation:{en:'very',es:'muy'}, description:'High degree' },
+  { id:'MORE',    name:'MORE',    tier:0, category:'intensifier', level:2, glyph:'＋', color:'#FF9800', accepts:['modifier','value'], provides:['modifier'],           pronunciation:{en:'more'},            description:'Greater degree' },
+  { id:'LIKE_AS', name:'LIKE',    tier:0, category:'similarity',  level:2, glyph:'≈',  color:'#9C27B0', accepts:['value','object'],   provides:['operator','modifier'], pronunciation:{en:'like'},            description:'Similar to' },
+
+  // ── COMPUTE PRIMES (Level 3) ───────────────────────────────────────
+  { id:'ADD',     name:'ADD',     tier:1, category:'math',     level:3, glyph:'﹢', color:'#F44336', accepts:['value'],           provides:['operator','value'], pronunciation:{en:'add'},     description:'Addition' },
+  { id:'SUBTRACT',name:'SUBTRACT',tier:1, category:'math',     level:3, glyph:'﹣', color:'#F44336', accepts:['value'],           provides:['operator','value'], pronunciation:{en:'subtract'},description:'Subtraction' },
+  { id:'MULTIPLY',name:'MULTIPLY',tier:1, category:'math',     level:3, glyph:'✕',  color:'#F44336', accepts:['value'],           provides:['operator','value'], pronunciation:{en:'multiply'},description:'Multiplication' },
+  { id:'EQUAL',   name:'EQUAL',   tier:1, category:'compare',  level:3, glyph:'＝', color:'#448AFF', accepts:['value'],           provides:['operator','condition'], pronunciation:{en:'equals'}, description:'Equality test' },
+  { id:'LOOP',    name:'LOOP',    tier:1, category:'control',  level:3, glyph:'🔄', color:'#7C4DFF', accepts:['condition','value'],provides:['condition','operator'],pronunciation:{en:'loop'},   description:'Repetition' },
+  { id:'STORE',   name:'STORE',   tier:1, category:'data',     level:3, glyph:'💾', color:'#00ACC1', accepts:['operator','modifier'],provides:['value','subject'],  pronunciation:{en:'store'},  description:'Save to memory' },
+  { id:'LOAD',    name:'LOAD',    tier:1, category:'data',     level:3, glyph:'📂', color:'#00ACC1', accepts:['operator','modifier'],provides:['value','subject'],  pronunciation:{en:'load'},   description:'Read from memory' },
+  { id:'PRINT',   name:'PRINT',   tier:1, category:'io',       level:3, glyph:'🖨',  color:'#00E676', accepts:['value','object'],  provides:['predicate'],        pronunciation:{en:'print'},  description:'Output to display' },
+  { id:'INPUT',   name:'INPUT',   tier:1, category:'io',       level:3, glyph:'⌨',  color:'#00E676', accepts:['value','object'],  provides:['predicate'],        pronunciation:{en:'input'},  description:'Read user input' },
+  { id:'DEFINE',  name:'DEFINE',  tier:1, category:'function', level:3, glyph:'λ',  color:'#D500F9', accepts:['value','subject'], provides:['predicate','operator'], pronunciation:{en:'define'},description:'Create function' },
+  { id:'CALL',    name:'CALL',    tier:1, category:'function', level:3, glyph:'📞', color:'#D500F9', accepts:['value','subject'], provides:['predicate','operator'], pronunciation:{en:'call'},  description:'Invoke function' },
+  { id:'TRUE',    name:'TRUE',    tier:1, category:'data',     level:3, glyph:'✓',  color:'#00ACC1', accepts:['operator','modifier'],provides:['value','subject'],  pronunciation:{en:'true'},  description:'Boolean true' },
+  { id:'FALSE',   name:'FALSE',   tier:1, category:'data',     level:3, glyph:'✗',  color:'#00ACC1', accepts:['operator','modifier'],provides:['value','subject'],  pronunciation:{en:'false'}, description:'Boolean false' },
+];
+
+// =========================================================================
+//  GRAMMAR — Slot connection rules
+// =========================================================================
+
+const SLOT_CONNECTIONS = {
+  subject:   ['predicate'],
+  predicate: ['object','modifier','value'],
+  object:    ['modifier','condition'],
+  modifier:  ['modifier','value'],
+  condition: ['subject','predicate','value'],
+  value:     ['operator','modifier'],
+  operator:  ['value','subject','object'],
+};
+
+function canConnect(fromSym, toSym) {
+  for (const ps of fromSym.provides) {
+    const allowed = SLOT_CONNECTIONS[ps];
+    if (!allowed) continue;
+    for (const as of toSym.accepts) {
+      if (allowed.includes(as)) return true;
+    }
+  }
+  return false;
+}
+
+// =========================================================================
+//  COMPILER — Naive compilation to JS / Python / English / USEL notation
+// =========================================================================
+
+function compileUSEL(symbols) {
+  return symbols.map(s => s.glyph).join(' ');
+}
+
+function compileEnglish(symbols) {
+  if (symbols.length === 0) return '';
+  const words = symbols.map(s => s.pronunciation.en || s.name.toLowerCase());
+  // Basic sentence: capitalize first, add period
+  let sentence = words.join(' ');
+  return sentence.charAt(0).toUpperCase() + sentence.slice(1);
+}
+
+function compileJS(symbols) {
+  if (symbols.length === 0) return '';
+  // Simple S-V-O heuristic
+  const parts = symbols.map(s => s.name.toLowerCase());
+  if (parts.length === 1) return `${parts[0]}();`;
+
+  // Find first predicate
+  const predIdx = symbols.findIndex(s => s.provides.includes('predicate'));
+  if (predIdx < 0) return parts.join(', ');
+
+  const pred = parts[predIdx];
+  const before = parts.slice(0, predIdx);
+  const after  = parts.slice(predIdx + 1);
+
+  const subj = before.length > 0 ? before.join(', ') : '';
+  const obj  = after.length > 0 ? after.join(', ') : '';
+
+  if (subj && obj)  return `${pred}(${subj}, ${obj});`;
+  if (subj)         return `${pred}(${subj});`;
+  if (obj)          return `${pred}(${obj});`;
+  return `${pred}();`;
+}
+
+function compilePython(symbols) {
+  // Same heuristic, just style differences
+  if (symbols.length === 0) return '';
+  const parts = symbols.map(s => s.name.toLowerCase());
+  if (parts.length === 1) return `${parts[0]}()`;
+
+  const predIdx = symbols.findIndex(s => s.provides.includes('predicate'));
+  if (predIdx < 0) return ', '.join(parts);
+
+  const pred = parts[predIdx];
+  const before = parts.slice(0, predIdx);
+  const after  = parts.slice(predIdx + 1);
+
+  const subj = before.length > 0 ? before.join(', ') : '';
+  const obj  = after.length > 0 ? after.join(', ') : '';
+
+  if (subj && obj)  return `${pred}(${subj}, ${obj})`;
+  if (subj)         return `${pred}(${subj})`;
+  if (obj)          return `${pred}(${obj})`;
+  return `${pred}()`;
+}
+
+// =========================================================================
+//  EDITOR STATE
+// =========================================================================
+
+let currentLevel = 1;
+let canvas = [];        // Array of symbol objects on the canvas
+let dragSrcIdx = null;  // index being dragged inside canvas
+
+const $ = id => document.getElementById(id);
+
+// =========================================================================
+//  RENDER — Palette
+// =========================================================================
+
+function filteredPrimes() {
+  const search = $('paletteSearch').value.toLowerCase();
+  return PRIMES.filter(p =>
+    p.level <= currentLevel &&
+    (p.name.toLowerCase().includes(search) ||
+     p.category.toLowerCase().includes(search) ||
+     p.glyph.includes(search))
+  );
+}
+
+function renderPalette() {
+  const list = $('paletteList');
+  list.innerHTML = '';
+  const primes = filteredPrimes();
+  for (const p of primes) {
+    const el = document.createElement('div');
+    el.className = 'sym-tile';
+    el.setAttribute('draggable','true');
+    el.innerHTML = `
+      <div class="sym-glyph" style="border:2px solid ${p.color};color:${p.color}">${p.glyph}</div>
+      <div class="sym-info">
+        <div class="sym-name" style="color:${p.color}">${p.name}</div>
+        <div class="sym-cat">${p.category}</div>
+      </div>`;
+    el.title = p.description;
+    el.addEventListener('click', () => addToCanvas(p));
+    el.addEventListener('dragstart', e => {
+      e.dataTransfer.setData('text/plain', p.id);
+      e.dataTransfer.effectAllowed = 'copy';
+    });
+    list.appendChild(el);
+  }
+  $('statusSymbols').textContent = `Symbols: ${primes.length}`;
+}
+
+// =========================================================================
+//  RENDER — Canvas
+// =========================================================================
+
+function validateCanvas() {
+  // Returns array of booleans per-pair: true = valid connection
+  const results = [];
+  for (let i = 0; i < canvas.length - 1; i++) {
+    results.push(canConnect(canvas[i], canvas[i+1]));
+  }
+  return results;
+}
+
+function renderCanvas() {
+  const el = $('canvas');
+  el.innerHTML = '';
+  const label = $('canvasLabel');
+  label.classList.toggle('hidden', canvas.length > 0);
+
+  const validity = validateCanvas();
+
+  canvas.forEach((sym, idx) => {
+    // Arrow between tiles
+    if (idx > 0) {
+      const arrow = document.createElement('div');
+      arrow.className = 'cv-arrow';
+      const valid = validity[idx - 1];
+      arrow.classList.add(valid ? 'valid-arrow' : 'invalid-arrow');
+      arrow.textContent = valid ? '──▶' : '──✕';
+      el.appendChild(arrow);
+    }
+
+    const tile = document.createElement('div');
+    tile.className = 'cv-tile';
+    tile.setAttribute('draggable', 'true');
+    tile.dataset.idx = idx;
+    tile.style.borderColor = sym.color;
+    tile.style.boxShadow = `0 0 12px ${sym.color}33`;
+
+    // Validity coloring
+    const leftOk  = idx === 0 || validity[idx - 1];
+    const rightOk = idx === canvas.length - 1 || validity[idx];
+    if (!leftOk || !rightOk) tile.classList.add('invalid');
+    else if (canvas.length > 1) tile.classList.add('valid');
+
+    tile.innerHTML = `
+      <span class="glyph" style="color:${sym.color}">${sym.glyph}</span>
+      <span class="label">${sym.name}</span>
+      <span class="remove" title="Remove">✕</span>`;
+
+    // Remove handler
+    tile.querySelector('.remove').addEventListener('click', e => {
+      e.stopPropagation();
+      canvas.splice(idx, 1);
+      renderCanvas();
+      compile();
+    });
+
+    // Drag-to-reorder inside canvas
+    tile.addEventListener('dragstart', e => {
+      dragSrcIdx = idx;
+      tile.classList.add('dragging');
+      e.dataTransfer.effectAllowed = 'move';
+      e.dataTransfer.setData('text/plain', '');
+    });
+    tile.addEventListener('dragend', () => {
+      dragSrcIdx = null;
+      tile.classList.remove('dragging');
+    });
+    tile.addEventListener('dragover', e => {
+      e.preventDefault();
+      e.dataTransfer.dropEffect = dragSrcIdx !== null ? 'move' : 'copy';
+    });
+    tile.addEventListener('drop', e => {
+      e.preventDefault();
+      e.stopPropagation();
+      if (dragSrcIdx !== null && dragSrcIdx !== idx) {
+        // Reorder
+        const [moved] = canvas.splice(dragSrcIdx, 1);
+        canvas.splice(idx, 0, moved);
+        dragSrcIdx = null;
+        renderCanvas();
+        compile();
+      }
+    });
+
+    el.appendChild(tile);
+  });
+
+  // Validity status
+  const allValid = validity.every(v => v);
+  const statusV = $('statusValid');
+  if (canvas.length <= 1) {
+    statusV.textContent = '—';
+    statusV.style.color = 'var(--text3)';
+  } else if (allValid) {
+    statusV.textContent = '✓ Valid composition';
+    statusV.style.color = 'var(--green)';
+  } else {
+    const bad = validity.filter(v => !v).length;
+    statusV.textContent = `✕ ${bad} invalid connection${bad>1?'s':''}`;
+    statusV.style.color = 'var(--red)';
+  }
+}
+
+// =========================================================================
+//  CANVAS — Drop zone (from palette drag)
+// =========================================================================
+
+const wrap = $('canvasWrap');
+wrap.addEventListener('dragover', e => {
+  e.preventDefault();
+  e.dataTransfer.dropEffect = dragSrcIdx !== null ? 'move' : 'copy';
+  wrap.classList.add('drag-over');
+});
+wrap.addEventListener('dragleave', () => wrap.classList.remove('drag-over'));
+wrap.addEventListener('drop', e => {
+  e.preventDefault();
+  wrap.classList.remove('drag-over');
+  if (dragSrcIdx !== null) return; // handled by tile drop
+  const id = e.dataTransfer.getData('text/plain');
+  const sym = PRIMES.find(p => p.id === id);
+  if (sym) { addToCanvas(sym); }
+});
+
+// =========================================================================
+//  ADD / CLEAR / COMPILE
+// =========================================================================
+
+function addToCanvas(sym) {
+  canvas.push({...sym}); // shallow copy
+  renderCanvas();
+  compile();
+}
+
+function clearCanvas() {
+  canvas = [];
+  renderCanvas();
+  compile();
+  $('runOutput').style.display = 'none';
+  toast('Canvas cleared');
+}
+
+function compile() {
+  $('outUSEL').textContent = canvas.length ? compileUSEL(canvas) : '—';
+  $('outJS').textContent   = canvas.length ? compileJS(canvas)   : '—';
+  $('outPY').textContent   = canvas.length ? compilePython(canvas): '—';
+  $('outEN').textContent   = canvas.length ? compileEnglish(canvas): '—';
+}
+
+// =========================================================================
+//  RUN — Sandboxed JS execution
+// =========================================================================
+
+function runJS() {
+  const code = compileJS(canvas);
+  if (!code || code === '—') { toast('Nothing to run'); return; }
+
+  const out = $('outRun');
+  const sec = $('runOutput');
+  sec.style.display = 'block';
+
+  // Create a very basic sandbox with stubs
+  const logs = [];
+  const sandbox = {
+    i: 'I', you: 'you', someone: 'someone', something: 'something',
+    people: 'people', body: 'body',
+    want:  (...a) => logs.push(`want(${a.join(', ')})`),
+    know:  (...a) => logs.push(`know(${a.join(', ')})`),
+    think: (...a) => logs.push(`think(${a.join(', ')})`),
+    feel:  (...a) => logs.push(`feel(${a.join(', ')})`),
+    see:   (...a) => logs.push(`see(${a.join(', ')})`),
+    hear:  (...a) => logs.push(`hear(${a.join(', ')})`),
+    say:   (...a) => logs.push(`say(${a.join(', ')})`),
+    do:    (...a) => logs.push(`do(${a.join(', ')})`),
+    move:  (...a) => logs.push(`move(${a.join(', ')})`),
+    happen:(...a) => logs.push(`happen(${a.join(', ')})`),
+    make:  (...a) => logs.push(`make(${a.join(', ')})`),
+    have:  (...a) => logs.push(`have(${a.join(', ')})`),
+    give:  (...a) => logs.push(`give(${a.join(', ')})`),
+    take:  (...a) => logs.push(`take(${a.join(', ')})`),
+    good:  (...a) => logs.push(`good(${a.join(', ')})`),
+    bad:   (...a) => logs.push(`bad(${a.join(', ')})`),
+    live:  (...a) => logs.push(`live(${a.join(', ')})`),
+    die:   (...a) => logs.push(`die(${a.join(', ')})`),
+    exist: (...a) => logs.push(`exist(${a.join(', ')})`),
+    print: (...a) => logs.push(`[PRINT] ${a.join(', ')}`),
+    add:   (a,b)  => { const r = Number(a)+Number(b); logs.push(`add(${a},${b}) = ${r}`); return r; },
+    subtract:(a,b)=> { const r = Number(a)-Number(b); logs.push(`subtract(${a},${b}) = ${r}`); return r; },
+    multiply:(a,b)=> { const r = Number(a)*Number(b); logs.push(`multiply(${a},${b}) = ${r}`); return r; },
+    console: { log: (...a) => logs.push(a.join(' ')) },
+  };
+
+  try {
+    const fn = new Function(...Object.keys(sandbox), code);
+    fn(...Object.values(sandbox));
+    out.textContent = logs.length ? logs.join('\n') : '(no output)';
+    out.classList.remove('error');
+  } catch(err) {
+    out.textContent = `Error: ${err.message}`;
+    out.classList.add('error');
+  }
+}
+
+// =========================================================================
+//  EXPORT — Copy USEL to clipboard
+// =========================================================================
+
+function exportUSEL() {
+  const text = compileUSEL(canvas);
+  if (!text || canvas.length === 0) { toast('Nothing to export'); return; }
+  navigator.clipboard.writeText(text).then(
+    () => toast('USEL copied to clipboard ✓'),
+    () => toast('Clipboard write failed')
+  );
+}
+
+// =========================================================================
+//  TOAST
+// =========================================================================
+
+function toast(msg) {
+  const el = $('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(el._timer);
+  el._timer = setTimeout(() => el.classList.remove('show'), 2200);
+}
+
+// =========================================================================
+//  LEVEL SELECT
+// =========================================================================
+
+function setLevel(lv) {
+  currentLevel = lv;
+  const labels = {1:'Level 1 (Age 5-7)',2:'Level 2 (Age 8-12)',3:'Level 3 (Age 13+)'};
+  $('statusLevel').textContent = labels[lv] || '';
+  renderPalette();
+}
+
+// =========================================================================
+//  WIRE UP EVENTS
+// =========================================================================
+
+$('levelSelect').addEventListener('change', e => setLevel(Number(e.target.value)));
+$('btnClear').addEventListener('click', clearCanvas);
+$('btnRun').addEventListener('click', runJS);
+$('btnExport').addEventListener('click', exportUSEL);
+$('paletteSearch').addEventListener('input', renderPalette);
+
+// Keyboard shortcuts
+document.addEventListener('keydown', e => {
+  if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') { e.preventDefault(); runJS(); }
+  if ((e.metaKey || e.ctrlKey) && e.key === 'Backspace') { e.preventDefault(); clearCanvas(); }
+});
+
+// =========================================================================
+//  BOOT
+// =========================================================================
+
+renderPalette();
+renderCanvas();
+compile();
+
+// Startup animation — flash the header
+setTimeout(() => {
+  document.querySelector('.header h1').style.transition = 'filter .6s';
+  document.querySelector('.header h1').style.filter = 'brightness(1.4)';
+  setTimeout(() => document.querySelector('.header h1').style.filter = '', 600);
+}, 300);
+</script>
+</body>
+</html>
