@@ -1,0 +1,51 @@
+cff-version: 1.2.0
+title: "USEL: Universal Symbolic Executable Language"
+message: "If you use USEL in your research, please cite it using this metadata."
+type: software
+authors:
+  - given-names: Kit
+    family-names: Olivas
+    affiliation: "Independent Researcher"
+  - name: "Ada Marie"
+    affiliation: "AI Co-Creator"
+repository-code: "https://github.com/kitfoxs/usel-lang"
+license: MIT
+version: 1.0.0
+date-released: "2026-04-07"
+keywords:
+  - "natural semantic metalanguage"
+  - "NSM"
+  - "semantic primes"
+  - "universal language"
+  - "programming language"
+  - "accessibility"
+  - "neurodivergent"
+  - "AAC"
+  - "AI memory"
+  - "Leibniz"
+abstract: >-
+  USEL (Universal Symbolic Executable Language) is a symbolic programming
+  language built on the 65 empirically verified semantic primes from Anna
+  Wierzbicka's Natural Semantic Metalanguage (NSM) research. It is designed
+  to be simultaneously human-universal, child-readable, AI-native, and
+  executable as code, compiling to JavaScript, Python, WebAssembly, and
+  natural language.
+references:
+  - type: book
+    authors:
+      - family-names: Wierzbicka
+        given-names: Anna
+    title: "Semantics: Primes and Universals"
+    year: 1996
+    publisher:
+      name: "Oxford University Press"
+  - type: book
+    authors:
+      - family-names: Goddard
+        given-names: Cliff
+      - family-names: Wierzbicka
+        given-names: Anna
+    title: "Words and Meanings: Lexical Semantics Across Domains, Languages, and Cultures"
+    year: 2014
+    publisher:
+      name: "Oxford University Press"
