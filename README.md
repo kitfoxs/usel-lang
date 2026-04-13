@@ -8,25 +8,62 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Version](https://img.shields.io/badge/version-1.0.0-brightgreen.svg)](spec/USEL_SPEC_v1.md)
+[![DOI](https://img.shields.io/badge/DOI-10.5281%2Fzenodo.19536117-blue.svg)](https://zenodo.org/records/19536117)
 [![Status](https://img.shields.io/badge/status-Research%20Preview-orange.svg)](#)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
 
-*A symbolic language that is simultaneously child-readable, AI-efficient,*
-*human-universal, and executable as code.*
-
-[Specification](spec/USEL_SPEC_v1.md) · [Primes Table](spec/PRIMES_TABLE.md) · [Contributing](CONTRIBUTING.md)
+[Specification](spec/USEL_SPEC_v1.md) · [Primes Table](spec/PRIMES_TABLE.md) · [Paper (Zenodo)](https://zenodo.org/records/19536117) · [Contributing](CONTRIBUTING.md)
 
 </div>
 
 ---
 
-## What is USEL?
+## Wait, what IS this? (The Simple Version)
 
-**USEL** (Universal Symbolic Executable Language) is a symbolic language built on the 65 empirically verified semantic primes from Anna Wierzbicka's Natural Semantic Metalanguage (NSM) research. These primes — concepts like `I`, `WANT`, `GOOD`, `MOVE`, `BECAUSE` — are the irreducible atoms of human meaning, verified across every studied natural language on Earth. USEL gives each prime a visual symbol, a grammar, and a compilation target, creating the first language optimized for **both** human cognition **and** machine execution simultaneously.
+Imagine every language on Earth — English, Spanish, Mandarin, Arabic, Swahili, all 7,000+ of them — is built from the same tiny set of building blocks. Like LEGO.
 
-Unlike previous attempts at universal languages (Esperanto, Blissymbols, Lojban), USEL does not invent new vocabulary or grammar from scratch. It stands on decades of cross-linguistic research proving that these 65 concepts are universal. A child in Tokyo, a farmer in Nairobi, and an LLM running in Azure all share these semantic primitives. USEL simply makes them visible, composable, and executable.
+Sounds crazy, right? But linguists spent **50 years** proving it's actually true.
 
-The practical result is a language where **syntax errors are impossible** (the projectional editor enforces grammar), **meaning is unambiguous** (every symbol has a canonical interpretation), and **programs are human-readable by design** (a 5-year-old can trace the logic). USEL compiles to JavaScript, Python, natural language, and WebAssembly — making it both a communication tool and a real programming language.
+They found **65 words** that exist in **every single language ever studied** (300+ languages tested). Words like:
+
+> **I, YOU, WANT, KNOW, GOOD, BAD, BIG, SMALL, BEFORE, AFTER, BECAUSE, FEEL, SEE, HEAR, SAY, MOVE, LIVE, DIE**
+
+These are called **semantic primes** — the atoms of human meaning. You literally cannot define them using simpler words. Try defining "WANT" without using "want" or a synonym. You can't. These 65 concepts are the absolute bedrock of what it means to think and communicate as a human being.
+
+**USEL takes those 65 building blocks and turns them into a language that both humans AND computers can read, write, and run as actual code.**
+
+### A Real Example
+
+Instead of writing this:
+
+> *"Kit met with Rossetta on Tuesday to discuss the Ada Marie project and it went really well"*
+
+USEL compresses it to:
+
+```
+[SOMEONE:Kit]+[BE+NEAR]+[SOMEONE:Rossetta]+[SAY]+[SOMETHING:Ada_Marie]+[BEFORE+NOW]+[GOOD+VERY]
+```
+
+And that same USEL expression can compile to JavaScript, Python, WebAssembly, or translate back to plain English — or Spanish, or Japanese, or any language. Because the building blocks are universal.
+
+### Why Should You Care?
+
+- **If you're a regular person:** Imagine a world where a 5-year-old in Tokyo and a grandma in Brazil can both read the same code. That's USEL.
+- **If you're a developer:** It's a programming language where syntax errors are literally impossible (the editor won't let you make them), and every program is human-readable by default.
+- **If you're in AI:** Each of the 65 symbols maps to a fixed point in LLM embedding space. No ambiguity. No hallucination about what a word means. The AI and the human are speaking the exact same language for the first time ever.
+- **If you're neurodivergent:** This was designed by neurodivergent people, for neurodivergent people. Visual tiles, no walls of text, progressive disclosure (start with 10 symbols, unlock more as you grow).
+
+### Why Did Previous Universal Languages Fail?
+
+| System | Year | What Went Wrong |
+|--------|------|----------------|
+| Leibniz's Universal Language | 1670s | Great idea, but no empirical data and no computers |
+| Esperanto | 1887 | Just another spoken language — still has grammar to memorize |
+| Blissymbols | 1949 | Too abstract, nobody could read them intuitively |
+| Lojban | 1987 | So logical it melted your brain trying to use it |
+| Emojis | 2010s | No grammar — 🍕💀🔥 could mean anything |
+
+**What changed in 2026:** We finally have all three ingredients — the empirical primes (discovered by linguists), the AI bridge (LLMs that understand symbols), and the hardware (WebAssembly runs everywhere). USEL is what happens when you combine all three.
 
 ---
 
@@ -41,7 +78,7 @@ The practical result is a language where **syntax errors are impossible** (the p
 | 🧩 **No Syntax Errors** | Projectional editor — tiles snap together, invalid = impossible |
 | 🔬 **Empirically Grounded** | Based on 50+ years of NSM cross-linguistic research |
 | 📦 **Compressed** | A few symbols convey paragraphs of meaning |
-| ♿ **Accessible** | Designed for neurodivergent users, AAC integration, colorblind-safe |
+| ♿ **Accessible** | Designed by neurodivergent creators, AAC integration, colorblind-safe |
 | 🏗️ **Extensible** | Add molecules (Tier 2) without changing the core language |
 | 🧠 **MemPalace Integration** | Bridge to persistent AI memory systems |
 
@@ -276,36 +313,25 @@ mempalace.store({
 
 ---
 
-## 📚 Research Background
+## 📚 The Science Behind It (For the Curious)
 
-### Natural Semantic Metalanguage (NSM)
+### "But how do you KNOW these 65 words are universal?"
 
-USEL's foundation is Anna Wierzbicka's NSM theory (1972–present), refined by Cliff Goddard and a global network of linguists. Over 50 years of cross-linguistic research has identified 65 semantic primes — concepts that exist as irreducible words or word-like expressions in **every** natural language studied.
+Great question. A linguist named **Anna Wierzbicka** started this research in 1972. Over the next 50+ years, she and her colleague **Cliff Goddard** — along with researchers on every continent — tested hundreds of languages. They kept asking: *"What are the simplest concepts that every language has?"*
 
-**Key insight:** You cannot define `WANT` in simpler terms. You cannot define `GOOD` without circularity. These 65 concepts are the bedrock of human meaning.
+They started with about 14. Then they refined it to 60. Then 65. Every time they tested a new language — from Aboriginal Australian languages to Mandarin to Yoruba to Polish — the same 65 concepts showed up. Not similar concepts. The **exact same** ones.
 
-### Leibniz's Dream (1670s)
+This isn't a theory anymore. It's one of the most well-tested findings in linguistics. The research is called **Natural Semantic Metalanguage (NSM)**, and there are hundreds of peer-reviewed papers backing it up.
 
-> *"If controversies were to arise, there would be no more need of disputation between two philosophers than between two accountants. For it would suffice to take their pencils in their hands, to sit down to their slates, and to say to each other: Let us calculate."*
-> — Gottfried Wilhelm Leibniz
+**Our paper:** [USEL on Zenodo (DOI: 10.5281/zenodo.19536117)](https://zenodo.org/records/19536117)
 
-Leibniz imagined a *Characteristica Universalis* — a universal symbolic language for all human thought. He failed because he had no empirical primes, no hardware, and no AI. **We have all three.**
+### The Leibniz Connection
 
-### AAAK Compressed Memory Format
+In 1670, a German philosopher named **Gottfried Leibniz** dreamed of creating a universal language for all human thought. He called it the *Characteristica Universalis*. He imagined that if two people disagreed, they could just sit down, write their arguments in this language, and "calculate" who was right.
 
-USEL's text notation draws inspiration from the AAAK (Ada's Absolutely Absurd Kompression) format — a compressed symbolic language developed for AI memory systems. AAAK demonstrated that symbolic compression can achieve 90%+ size reduction while preserving semantic fidelity. USEL formalizes this insight into a full language specification.
+He failed — because he had no empirical data about what the universal building blocks actually were, and he had no computers.
 
-### Why Previous Attempts Failed
-
-| System | Year | Failure Mode |
-|--------|------|-------------|
-| Characteristica Universalis | 1670s | No empirical primes, no hardware |
-| Blissymbols | 1949 | Too abstract, low translucency |
-| Esperanto | 1887 | Still a spoken language, not symbolic |
-| Lojban | 1987 | Cognitive overload, no redundancy |
-| Emojis | 2010s | No grammar, no compositionality |
-
-**What changed in 2026:** NSM primes (the alphabet) + AI embeddings (the bridge) + WebAssembly (the runtime).
+**350 years later, we have both.** USEL is what Leibniz would have built if he'd had NSM research and a MacBook.
 
 ---
 
