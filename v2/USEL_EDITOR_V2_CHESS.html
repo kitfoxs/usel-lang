@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>USEL v2 Chess Grid Editor</title>
+<style>
+:root { --bg:#0d1117; --surface:#161b22; --surface2:#21262d; --border:#30363d; --text:#e6edf3; --text2:#8b949e; --accent:#f1c40f; }
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:'Segoe UI',system-ui,sans-serif; background:var(--bg); color:var(--text); min-height:100vh; }
+
+header { background:var(--surface); border-bottom:1px solid var(--border); padding:12px 24px; display:flex; justify-content:space-between; align-items:center; }
+header h1 { font-size:18px; } header h1 span { color:var(--accent); }
+
+.layout { display:grid; grid-template-columns:auto 1fr; gap:0; height:calc(100vh - 52px); }
+
+/* Chess Grid */
+.grid-panel { background:var(--surface); padding:16px; border-right:1px solid var(--border); display:flex; flex-direction:column; align-items:center; }
+.grid-panel h3 { font-size:12px; color:var(--text2); text-transform:uppercase; letter-spacing:1px; margin-bottom:10px; }
+
+.chessboard { display:grid; grid-template-columns:20px repeat(8,56px); grid-template-rows:repeat(8,56px) 20px; gap:0; }
+.rank-label { display:flex; align-items:center; justify-content:center; font-size:11px; color:var(--text2); font-weight:700; width:20px; }
+.file-label { display:flex; align-items:center; justify-content:center; font-size:11px; color:var(--text2); font-weight:700; height:20px; }
+
+.cell {
+  width:56px; height:56px; display:flex; flex-direction:column; align-items:center; justify-content:center;
+  cursor:pointer; border:1px solid rgba(255,255,255,0.05); transition:all 0.12s; position:relative;
+}
+.cell:hover { z-index:2; transform:scale(1.08); box-shadow:0 0 12px rgba(241,196,15,0.4); border-color:var(--accent); }
+.cell:active { transform:scale(0.95); }
+.cell .glyph { font-size:18px; line-height:1; }
+.cell .prime-name { font-size:7px; font-weight:700; text-transform:uppercase; text-align:center; line-height:1; margin-top:1px; max-width:52px; overflow:hidden; }
+.cell .coord { position:absolute; bottom:1px; right:3px; font-size:7px; color:rgba(255,255,255,0.3); font-family:monospace; }
+
+/* Board colors */
+.cell-light { background:rgba(255,255,255,0.08); }
+.cell-dark { background:rgba(0,0,0,0.15); }
+
+/* Category stripe colors (subtle tint) */
+.file-a .cell { border-left:3px solid #e74c3c; }
+.file-b .cell { border-left:3px solid #f1c40f; }
+.file-c .cell { border-left:3px solid #9b59b6; }
+.file-d .cell { border-left:3px solid #ff5722; }
+.file-e .cell { border-left:3px solid #e91e63; }
+.file-f .cell { border-left:3px solid #00bcd4; }
+.file-g .cell { border-left:3px solid #4caf50; }
+.file-h .cell { border-left:3px solid #2196f3; }
+
+/* Meta prime */
+.meta-prime { margin-top:10px; display:flex; align-items:center; gap:8px; }
+.meta-cell {
+  width:56px; height:56px; border-radius:50%; background:linear-gradient(135deg,#9c27b0,#e91e63);
+  display:flex; flex-direction:column; align-items:center; justify-content:center; cursor:pointer;
+  border:2px solid rgba(255,255,255,0.2); transition:all 0.12s;
+}
+.meta-cell:hover { transform:scale(1.1); box-shadow:0 0 16px rgba(156,39,176,0.6); }
+.meta-label { font-size:11px; color:var(--text2); }
+
+/* Right panel */
+.right-panel { display:flex; flex-direction:column; }
+
+/* Notation input */
+.notation-panel { background:var(--surface); border-bottom:1px solid var(--border); padding:16px; }
+.notation-panel h3 { font-size:12px; color:var(--text2); text-transform:uppercase; letter-spacing:1px; margin-bottom:8px; }
+.notation-input { display:flex; gap:8px; }
+.notation-input input { flex:1; background:var(--bg); border:1px solid var(--border); color:var(--text); padding:8px 12px; border-radius:6px; font-family:'SF Mono','Fira Code',monospace; font-size:14px; }
+.notation-input input::placeholder { color:var(--text2); }
+.notation-input button { padding:8px 16px; background:var(--accent); color:#000; border:none; border-radius:6px; font-weight:700; cursor:pointer; }
+.notation-input button:hover { background:#f39c12; }
+
+/* Workspace */
+.ws-panel { flex:1; padding:16px; overflow-y:auto; }
+.ws-panel h3 { font-size:12px; color:var(--text2); text-transform:uppercase; letter-spacing:1px; margin-bottom:8px; display:flex; justify-content:space-between; }
+.ws-tiles { display:flex; flex-wrap:wrap; align-items:center; gap:4px; min-height:60px; padding:12px; border:2px dashed var(--border); border-radius:8px; background:var(--surface2); }
+.ws-tile { padding:6px 10px; border-radius:6px; font-size:13px; font-weight:600; cursor:pointer; display:flex; align-items:center; gap:4px; border:1px solid rgba(255,255,255,0.15); }
+.ws-tile:hover { border-color:#e74c3c; opacity:0.8; }
+.ws-tile .ws-glyph { font-size:16px; }
+.ws-tile .ws-label { font-size:11px; }
+.ws-tile .ws-coord { font-size:9px; opacity:0.5; font-family:monospace; }
+.ws-arrow { color:var(--text2); font-size:12px; }
+
+/* Category colors for ws tiles */
+.wc-a { background:rgba(231,76,60,0.25); color:#e74c3c; }
+.wc-b { background:rgba(241,196,15,0.2); color:#f1c40f; }
+.wc-c { background:rgba(155,89,182,0.25); color:#c39bd3; }
+.wc-d { background:rgba(255,87,34,0.25); color:#ff5722; }
+.wc-e { background:rgba(233,30,99,0.25); color:#e91e63; }
+.wc-f { background:rgba(0,188,212,0.25); color:#00bcd4; }
+.wc-g { background:rgba(76,175,80,0.25); color:#4caf50; }
+.wc-h { background:rgba(33,150,243,0.25); color:#2196f3; }
+.wc-meta { background:rgba(156,39,176,0.25); color:#9c27b0; }
+
+/* Output */
+.output-panel { background:var(--surface); border-top:1px solid var(--border); padding:12px 16px; }
+.out-line { font-family:'SF Mono','Fira Code',monospace; font-size:13px; padding:3px 8px; border-radius:4px; margin-bottom:3px; }
+.out-usel { color:#f1c40f; background:rgba(241,196,15,0.08); }
+.out-chess { color:#ff9800; background:rgba(255,152,0,0.08); }
+.out-english { color:#2ecc71; background:rgba(46,204,113,0.08); }
+
+/* Legend */
+.legend { padding:10px 16px; display:flex; flex-wrap:wrap; gap:8px; border-top:1px solid var(--border); }
+.legend-item { display:flex; align-items:center; gap:4px; font-size:10px; color:var(--text2); }
+.legend-dot { width:10px; height:10px; border-radius:2px; }
+
+.clear-btn { padding:4px 10px; border-radius:4px; border:1px solid var(--border); background:var(--surface2); color:var(--text2); cursor:pointer; font-size:11px; }
+.clear-btn:hover { color:#e74c3c; border-color:#e74c3c; }
+
+.footer { padding:8px 16px; font-size:11px; color:var(--text2); text-align:center; border-top:1px solid var(--border); background:var(--surface); }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>♟️ <span>USEL v2</span> Chess Grid Editor</h1>
+  <span style="font-size:12px;color:var(--text2);">65 Primes → 8×8 Grid + Meta</span>
+</header>
+
+<div class="layout">
+  <!-- Chess Grid -->
+  <div class="grid-panel">
+    <h3>Semantic Chessboard — Click to Compose</h3>
+    <div class="chessboard" id="board"></div>
+    <div class="meta-prime">
+      <div class="meta-cell" onclick="addPrime(64)" title="LIKE/AS/WAY — The Meta Prime (similarity, manner, comparison)">
+        <span class="glyph">≃</span>
+        <span class="prime-name" style="font-size:8px;">LIKE</span>
+      </div>
+      <span class="meta-label">+1 Meta Prime: LIKE/AS/WAY</span>
+    </div>
+  </div>
+
+  <!-- Right Panel -->
+  <div class="right-panel">
+    <!-- Algebraic Notation Input -->
+    <div class="notation-panel">
+      <h3>Algebraic Notation Input — type chess coordinates (e.g. a1 d3 f2)</h3>
+      <div class="notation-input">
+        <input type="text" id="alg-input" placeholder="Type coordinates: a1 c3 f2 d1 e1..." onkeydown="if(event.key==='Enter')parseNotation()">
+        <button onclick="parseNotation()">Compose ▶</button>
+      </div>
+    </div>
+
+    <!-- Workspace -->
+    <div class="ws-panel">
+      <h3>
+        <span>Composition Workspace</span>
+        <button class="clear-btn" onclick="clearWS()">🗑 Clear</button>
+      </h3>
+      <div class="ws-tiles" id="workspace">
+        <span style="color:var(--text2);font-size:13px;">Click squares on the board or type coordinates above...</span>
+      </div>
+    </div>
+
+    <!-- Output -->
+    <div class="output-panel">
+      <div class="out-line out-chess" id="out-chess">Chess:   </div>
+      <div class="out-line out-usel" id="out-usel">USEL:    </div>
+      <div class="out-line out-english" id="out-english">English: </div>
+    </div>
+
+    <!-- Legend -->
+    <div class="legend">
+      <div class="legend-item"><div class="legend-dot" style="background:#e74c3c"></div>a: Self & Others</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#f1c40f"></div>b: Pointing & Counting</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#9b59b6"></div>c: Mind & Perception</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#ff5722"></div>d: Value & Action</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#e91e63"></div>e: Speech & Existence</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#00bcd4"></div>f: Time</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#4caf50"></div>g: Space</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#2196f3"></div>h: Logic & Degree</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#9c27b0;border-radius:50%"></div>+1: Meta (LIKE)</div>
+    </div>
+
+    <div class="footer">USEL v2 — Kit Olivas & Ada Marie, 2026 — github.com/kitfoxs/usel-lang — DOI: 10.5281/zenodo.19536117</div>
+  </div>
+</div>
+
+<script>
+// ===== GRID DATA: 65 primes mapped to 8x8 + 1 =====
+// Files a-h, Ranks 1-8 (rank 1 = bottom, rank 8 = top)
+const GRID = [
+  // file a: SELF & OTHERS (Substantives + Relational)
+  {id:'I',glyph:'◉',english:'I',file:'a',rank:1,cat:'a'},
+  {id:'YOU',glyph:'◎',english:'you',file:'a',rank:2,cat:'a'},
+  {id:'SOMEONE',glyph:'♟',english:'someone',file:'a',rank:3,cat:'a'},
+  {id:'PEOPLE',glyph:'♜',english:'people',file:'a',rank:4,cat:'a'},
+  {id:'SOMETHING',glyph:'◆',english:'something',file:'a',rank:5,cat:'a'},
+  {id:'BODY',glyph:'⬡',english:'body',file:'a',rank:6,cat:'a'},
+  {id:'KIND',glyph:'⊞',english:'kind of',file:'a',rank:7,cat:'a'},
+  {id:'PART',glyph:'⊟',english:'part of',file:'a',rank:8,cat:'a'},
+  // file b: POINTING & COUNTING (Determiners + Quantifiers)
+  {id:'THIS',glyph:'☞',english:'this',file:'b',rank:1,cat:'b'},
+  {id:'SAME',glyph:'≡',english:'the same',file:'b',rank:2,cat:'b'},
+  {id:'OTHER',glyph:'↔',english:'other',file:'b',rank:3,cat:'b'},
+  {id:'ONE',glyph:'①',english:'one',file:'b',rank:4,cat:'b'},
+  {id:'TWO',glyph:'②',english:'two',file:'b',rank:5,cat:'b'},
+  {id:'SOME',glyph:'◔',english:'some',file:'b',rank:6,cat:'b'},
+  {id:'ALL',glyph:'●',english:'all',file:'b',rank:7,cat:'b'},
+  {id:'MANY',glyph:'⋮⋮',english:'many',file:'b',rank:8,cat:'b'},
+  // file c: MIND & PERCEPTION
+  {id:'THINK',glyph:'💭',english:'think',file:'c',rank:1,cat:'c'},
+  {id:'KNOW',glyph:'✧',english:'know',file:'c',rank:2,cat:'c'},
+  {id:'WANT',glyph:'↣',english:'want',file:'c',rank:3,cat:'c'},
+  {id:'DONT_WANT',glyph:'↢',english:"don't want",file:'c',rank:4,cat:'c'},
+  {id:'FEEL',glyph:'♥',english:'feel',file:'c',rank:5,cat:'c'},
+  {id:'SEE',glyph:'👁',english:'see',file:'c',rank:6,cat:'c'},
+  {id:'HEAR',glyph:'👂',english:'hear',file:'c',rank:7,cat:'c'},
+  {id:'FEW',glyph:'◕',english:'few',file:'c',rank:8,cat:'c'},
+  // file d: VALUE & ACTION
+  {id:'GOOD',glyph:'✦',english:'good',file:'d',rank:1,cat:'d'},
+  {id:'BAD',glyph:'✘',english:'bad',file:'d',rank:2,cat:'d'},
+  {id:'BIG',glyph:'△',english:'big',file:'d',rank:3,cat:'d'},
+  {id:'SMALL',glyph:'▽',english:'small',file:'d',rank:4,cat:'d'},
+  {id:'DO',glyph:'⚡',english:'do',file:'d',rank:5,cat:'d'},
+  {id:'HAPPEN',glyph:'✴',english:'happen',file:'d',rank:6,cat:'d'},
+  {id:'MOVE',glyph:'→',english:'move',file:'d',rank:7,cat:'d'},
+  {id:'SAY',glyph:'💬',english:'say',file:'d',rank:8,cat:'d'},
+  // file e: SPEECH & EXISTENCE
+  {id:'WORDS',glyph:'𝐖',english:'words',file:'e',rank:1,cat:'e'},
+  {id:'TRUE',glyph:'✓',english:'true',file:'e',rank:2,cat:'e'},
+  {id:'THERE_IS',glyph:'∃',english:'there is',file:'e',rank:3,cat:'e'},
+  {id:'BE_WHERE',glyph:'≈',english:'is (somewhere)',file:'e',rank:4,cat:'e'},
+  {id:'BE_WHO',glyph:'≋',english:'is (someone)',file:'e',rank:5,cat:'e'},
+  {id:'HAVE',glyph:'⊃',english:'have',file:'e',rank:6,cat:'e'},
+  {id:'LIVE',glyph:'❋',english:'live',file:'e',rank:7,cat:'e'},
+  {id:'DIE',glyph:'✝',english:'die',file:'e',rank:8,cat:'e'},
+  // file f: TIME
+  {id:'WHEN',glyph:'⏰',english:'when',file:'f',rank:1,cat:'f'},
+  {id:'NOW',glyph:'⏱',english:'now',file:'f',rank:2,cat:'f'},
+  {id:'BEFORE',glyph:'◀',english:'before',file:'f',rank:3,cat:'f'},
+  {id:'AFTER',glyph:'▶',english:'after',file:'f',rank:4,cat:'f'},
+  {id:'LONG_TIME',glyph:'⟿',english:'a long time',file:'f',rank:5,cat:'f'},
+  {id:'SHORT_TIME',glyph:'⟶',english:'a short time',file:'f',rank:6,cat:'f'},
+  {id:'SOME_TIME',glyph:'⋯',english:'for some time',file:'f',rank:7,cat:'f'},
+  {id:'MOMENT',glyph:'⚡',english:'moment',file:'f',rank:8,cat:'f'},
+  // file g: SPACE
+  {id:'WHERE',glyph:'📍',english:'where',file:'g',rank:1,cat:'g'},
+  {id:'HERE',glyph:'⊙',english:'here',file:'g',rank:2,cat:'g'},
+  {id:'ABOVE',glyph:'⬆',english:'above',file:'g',rank:3,cat:'g'},
+  {id:'BELOW',glyph:'⬇',english:'below',file:'g',rank:4,cat:'g'},
+  {id:'FAR',glyph:'↗↗',english:'far',file:'g',rank:5,cat:'g'},
+  {id:'NEAR',glyph:'⊷',english:'near',file:'g',rank:6,cat:'g'},
+  {id:'SIDE',glyph:'⊏',english:'side',file:'g',rank:7,cat:'g'},
+  {id:'INSIDE',glyph:'⊡',english:'inside',file:'g',rank:8,cat:'g'},
+  // file h: LOGIC & DEGREE
+  {id:'NOT',glyph:'¬',english:'not',file:'h',rank:1,cat:'h'},
+  {id:'MAYBE',glyph:'~',english:'maybe',file:'h',rank:2,cat:'h'},
+  {id:'CAN',glyph:'◇',english:'can',file:'h',rank:3,cat:'h'},
+  {id:'BECAUSE',glyph:'∵',english:'because',file:'h',rank:4,cat:'h'},
+  {id:'IF',glyph:'⁇',english:'if',file:'h',rank:5,cat:'h'},
+  {id:'VERY',glyph:'⬆⬆',english:'very',file:'h',rank:6,cat:'h'},
+  {id:'MORE',glyph:'⊕',english:'more',file:'h',rank:7,cat:'h'},
+  {id:'TOUCH',glyph:'☝',english:'touch',file:'h',rank:8,cat:'h'},
+  // +1 META
+  {id:'LIKE',glyph:'≃',english:'like',file:'m',rank:0,cat:'meta'},
+];
+
+// ===== STATE =====
+let ws = [];
+const files = ['a','b','c','d','e','f','g','h'];
+
+// ===== BUILD BOARD =====
+function buildBoard() {
+  const board = document.getElementById('board');
+  let html = '';
+  
+  // Render ranks 8 down to 1
+  for (let rank = 8; rank >= 1; rank--) {
+    // Rank label
+    html += `<div class="rank-label">${rank}</div>`;
+    // 8 cells
+    for (let fi = 0; fi < 8; fi++) {
+      const file = files[fi];
+      const coord = file + rank;
+      const isLight = (fi + rank) % 2 === 1;
+      const prime = GRID.find(p => p.file === file && p.rank === rank);
+      const idx = GRID.indexOf(prime);
+      html += `<div class="cell ${isLight?'cell-light':'cell-dark'} file-${file}" 
+                    onclick="addPrime(${idx})" 
+                    title="${prime ? prime.id + ' (' + coord + '): ' + prime.english : coord}">
+        ${prime ? `<span class="glyph">${prime.glyph}</span><span class="prime-name">${prime.id.replace('_',' ')}</span>` : ''}
+        <span class="coord">${coord}</span>
+      </div>`;
+    }
+  }
+  // File labels row
+  html += '<div class="rank-label"></div>';
+  files.forEach(f => { html += `<div class="file-label">${f}</div>`; });
+  
+  board.innerHTML = html;
+}
+
+// ===== WORKSPACE =====
+function addPrime(idx) {
+  const prime = GRID[idx];
+  if (prime) { ws.push({...prime, coord: prime.file === 'm' ? 'meta' : prime.file + prime.rank}); render(); }
+}
+
+function removePrime(i) { ws.splice(i, 1); render(); }
+function clearWS() { ws = []; render(); }
+
+function parseNotation() {
+  const input = document.getElementById('alg-input').value.trim().toLowerCase();
+  if (!input) return;
+  const coords = input.split(/[\s,]+/);
+  coords.forEach(c => {
+    if (c === 'meta' || c === 'm') { addPrime(64); return; }
+    const file = c[0], rank = parseInt(c[1]);
+    if (files.includes(file) && rank >= 1 && rank <= 8) {
+      const prime = GRID.find(p => p.file === file && p.rank === rank);
+      if (prime) { ws.push({...prime, coord: file + rank}); }
+    }
+  });
+  document.getElementById('alg-input').value = '';
+  render();
+}
+
+function render() {
+  const workspace = document.getElementById('workspace');
+  if (ws.length === 0) {
+    workspace.innerHTML = '<span style="color:var(--text2);font-size:13px;">Click squares on the board or type coordinates above...</span>';
+    document.getElementById('out-chess').textContent = 'Chess:   ';
+    document.getElementById('out-usel').textContent = 'USEL:    ';
+    document.getElementById('out-english').textContent = 'English: ';
+    return;
+  }
+  
+  let html = '';
+  ws.forEach((p, i) => {
+    if (i > 0) html += '<span class="ws-arrow">▸</span>';
+    html += `<div class="ws-tile wc-${p.cat}" onclick="removePrime(${i})" title="Click to remove">
+      <span class="ws-glyph">${p.glyph}</span>
+      <span class="ws-label">${p.id.replace('_',' ')}</span>
+      <span class="ws-coord">${p.coord}</span>
+    </div>`;
+  });
+  workspace.innerHTML = html;
+  
+  // Compile
+  const chess = ws.map(p => p.coord).join(' ');
+  const usel = ws.map(p => `[${p.id.replace('_',' ')}]`).join('');
+  const eng = ws.map((p,i) => i===0 ? capitalize(p.english) : p.english).join(' ') + '.';
+  
+  document.getElementById('out-chess').textContent = `Chess:   ${chess}`;
+  document.getElementById('out-usel').textContent = `USEL:    ${usel}`;
+  document.getElementById('out-english').textContent = `English: "${eng}"`;
+}
+
+function capitalize(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
+
+// ===== INIT =====
+buildBoard();
+render();
+</script>
+</body>
+</html>
