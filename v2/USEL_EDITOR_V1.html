@@ -164,6 +164,7 @@ const PRIMES = [
   {id:'SOME',glyph:'◔',cat:'qnt',catName:'Quantifier',level:1,slot:'modifier',english:'some'},
   {id:'ALL',glyph:'●',cat:'qnt',catName:'Quantifier',level:1,slot:'modifier',english:'all'},
   {id:'MANY',glyph:'⋮⋮',cat:'qnt',catName:'Quantifier',level:1,slot:'modifier',english:'many'},
+  {id:'FEW',glyph:'◕',cat:'qnt',catName:'Quantifier',level:2,slot:'modifier',english:'few'},
   // Evaluators
   {id:'GOOD',glyph:'✦',cat:'eva',catName:'Evaluator',level:1,slot:'modifier',english:'good'},
   {id:'BAD',glyph:'✘',cat:'eva',catName:'Evaluator',level:1,slot:'modifier',english:'bad'},
@@ -188,7 +189,8 @@ const PRIMES = [
   {id:'MOVE',glyph:'→',cat:'act',catName:'Action',level:1,slot:'predicate',english:'move'},
   // Existence
   {id:'THERE_IS',glyph:'∃',cat:'exi',catName:'Existence',level:2,slot:'predicate',english:'there is'},
-  {id:'BE',glyph:'≈',cat:'exi',catName:'Existence',level:2,slot:'predicate',english:'is'},
+  {id:'BE_WHERE',glyph:'≈',cat:'exi',catName:'Existence',level:2,slot:'predicate',english:'is (somewhere)'},
+  {id:'BE_WHO',glyph:'≋',cat:'exi',catName:'Existence',level:2,slot:'predicate',english:'is (someone)'},
   {id:'HAVE',glyph:'⊃',cat:'exi',catName:'Existence',level:2,slot:'predicate',english:'have'},
   // Life
   {id:'LIVE',glyph:'❋',cat:'lif',catName:'Life',level:1,slot:'predicate',english:'live'},
@@ -222,8 +224,7 @@ const PRIMES = [
   {id:'VERY',glyph:'⬆⬆',cat:'int',catName:'Intensifier',level:1,slot:'modifier',english:'very'},
   {id:'MORE',glyph:'⊕',cat:'int',catName:'Intensifier',level:1,slot:'modifier',english:'more'},
   // Similarity
-  {id:'LIKE',glyph:'≃',cat:'sim',catName:'Similarity',level:2,slot:'modifier',english:'like'},
-  {id:'WAY',glyph:'⤳',cat:'sim',catName:'Similarity',level:2,slot:'modifier',english:'way'},
+  {id:'LIKE',glyph:'≃',cat:'sim',catName:'Similarity',level:2,slot:'modifier',english:'like/as/way'},
 ];
 
 // ===== STATE =====
