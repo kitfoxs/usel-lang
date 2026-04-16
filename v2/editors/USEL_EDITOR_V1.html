@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>USEL Editor — Universal Symbolic Executable Language</title>
+<style>
+:root {
+  --bg: #0d1117; --surface: #161b22; --surface2: #21262d; --border: #30363d;
+  --text: #e6edf3; --text2: #8b949e; --accent: #f1c40f;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family: 'Segoe UI',system-ui,-apple-system,sans-serif; background:var(--bg); color:var(--text); min-height:100vh; }
+
+/* Header */
+header { background:var(--surface); border-bottom:1px solid var(--border); padding:12px 24px; display:flex; justify-content:space-between; align-items:center; }
+header h1 { font-size:18px; } header h1 span { color:var(--accent); }
+.level-select { display:flex; gap:6px; align-items:center; font-size:13px; color:var(--text2); }
+.level-btn { padding:4px 12px; border-radius:12px; border:1px solid var(--border); background:var(--surface2); color:var(--text2); cursor:pointer; font-size:12px; font-weight:600; }
+.level-btn.active { background:#2ecc71; color:#000; border-color:#2ecc71; }
+
+/* Layout */
+.container { display:grid; grid-template-rows: auto 1fr auto auto; height:calc(100vh - 52px); }
+
+/* Palette */
+.palette { background:var(--surface); border-bottom:1px solid var(--border); padding:12px 16px; overflow-x:auto; }
+.palette-cats { display:flex; flex-wrap:wrap; gap:8px; }
+.cat-group { }
+.cat-label { font-size:10px; color:var(--text2); text-transform:uppercase; letter-spacing:1px; margin-bottom:4px; }
+.cat-tiles { display:flex; gap:4px; flex-wrap:wrap; }
+
+/* Tiles */
+.tile {
+  width:56px; height:64px; border-radius:8px; display:flex; flex-direction:column;
+  align-items:center; justify-content:center; cursor:pointer; border:2px solid rgba(255,255,255,0.12);
+  transition:all 0.12s; user-select:none; flex-shrink:0;
+}
+.tile:hover { transform:translateY(-2px); border-color:rgba(255,255,255,0.35); box-shadow:0 4px 12px rgba(0,0,0,0.4); }
+.tile:active { transform:scale(0.95); }
+.tile .glyph { font-size:20px; line-height:1.2; }
+.tile .label { font-size:8px; font-weight:700; text-transform:uppercase; letter-spacing:0.3px; text-align:center; line-height:1.1; margin-top:2px; }
+
+/* Workspace */
+.workspace { padding:20px; display:flex; flex-direction:column; background:var(--bg); }
+.workspace-label { font-size:11px; color:var(--text2); text-transform:uppercase; letter-spacing:1px; margin-bottom:12px; display:flex; justify-content:space-between; }
+.workspace-area { flex:1; display:flex; align-items:center; min-height:100px; gap:0; flex-wrap:wrap; padding:10px; border:2px dashed var(--border); border-radius:12px; background:var(--surface); }
+.ws-tile {
+  width:68px; height:76px; border-radius:8px; display:flex; flex-direction:column;
+  align-items:center; justify-content:center; border:2px solid rgba(255,255,255,0.2);
+  position:relative; cursor:pointer; flex-shrink:0;
+}
+.ws-tile:hover { border-color:rgba(255,0,0,0.6); }
+.ws-tile:hover::before { content:'✕'; position:absolute; top:-6px; right:-6px; background:#e74c3c; color:#fff; width:16px; height:16px; border-radius:50%; font-size:10px; display:flex; align-items:center; justify-content:center; }
+.ws-tile .glyph { font-size:24px; }
+.ws-tile .label { font-size:9px; font-weight:700; text-transform:uppercase; }
+.ws-connector { width:20px; display:flex; align-items:center; justify-content:center; color:var(--text2); font-size:10px; flex-shrink:0; }
+
+/* Output */
+.output { background:var(--surface); border-top:1px solid var(--border); padding:12px 20px; }
+.output-label { font-size:11px; color:var(--text2); text-transform:uppercase; letter-spacing:1px; margin-bottom:6px; }
+.output-lines { display:flex; flex-direction:column; gap:4px; }
+.out-line { font-family:'SF Mono','Fira Code','Consolas',monospace; font-size:13px; padding:4px 10px; border-radius:4px; }
+.out-usel { color:#f1c40f; background:rgba(241,196,15,0.08); }
+.out-english { color:#2ecc71; background:rgba(46,204,113,0.08); }
+.out-js { color:#3498db; background:rgba(52,152,219,0.08); }
+
+/* Toolbar */
+.toolbar { display:flex; gap:8px; }
+.tool-btn { padding:4px 12px; border-radius:6px; border:1px solid var(--border); background:var(--surface2); color:var(--text2); cursor:pointer; font-size:12px; }
+.tool-btn:hover { background:var(--border); color:var(--text); }
+
+/* Category colors */
+.c-sub { background:#e74c3c; color:#fff; }
+.c-rel { background:#e67e22; color:#fff; }
+.c-det { background:#f1c40f; color:#111; }
+.c-qnt { background:#2ecc71; color:#fff; }
+.c-eva { background:#1abc9c; color:#fff; }
+.c-des { background:#3498db; color:#fff; }
+.c-men { background:#9b59b6; color:#fff; }
+.c-spe { background:#e91e63; color:#fff; }
+.c-act { background:#ff5722; color:#fff; }
+.c-exi { background:#795548; color:#fff; }
+.c-lif { background:#607d8b; color:#fff; }
+.c-tim { background:#00bcd4; color:#fff; }
+.c-spa { background:#4caf50; color:#fff; }
+.c-log { background:#2196f3; color:#fff; }
+.c-int { background:#ff9800; color:#111; }
+.c-sim { background:#9c27b0; color:#fff; }
+
+/* Info panel */
+.info { background:var(--surface); border-top:1px solid var(--border); padding:8px 20px; font-size:12px; color:var(--text2); display:flex; justify-content:space-between; }
+
+/* Responsive */
+@media(max-width:768px) {
+  .tile { width:48px; height:56px; } .tile .glyph { font-size:16px; } .tile .label { font-size:7px; }
+  .ws-tile { width:58px; height:66px; }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>🔮 <span>USEL</span> Editor</h1>
+  <div class="level-select">
+    Level:
+    <button class="level-btn active" onclick="setLevel(1)">🟢 1</button>
+    <button class="level-btn" onclick="setLevel(2)">🟡 2</button>
+    <button class="level-btn" onclick="setLevel(3)">🔴 3</button>
+  </div>
+</header>
+
+<div class="container">
+  <div class="palette" id="palette"></div>
+  
+  <div class="workspace">
+    <div class="workspace-label">
+      <span>Workspace — click tiles above to add, click tiles below to remove</span>
+      <div class="toolbar">
+        <button class="tool-btn" onclick="clearWorkspace()">🗑 Clear</button>
+        <button class="tool-btn" onclick="addClauseSep()">· Clause Break</button>
+        <button class="tool-btn" onclick="addQuestion()">? Question</button>
+        <button class="tool-btn" onclick="addExclaim()">! Command</button>
+      </div>
+    </div>
+    <div class="workspace-area" id="workspace"></div>
+  </div>
+
+  <div class="output">
+    <div class="output-label">Compilation Output</div>
+    <div class="output-lines" id="output">
+      <div class="out-line out-usel" id="out-usel">USEL: (click tiles to compose)</div>
+      <div class="out-line out-english" id="out-english">English: </div>
+      <div class="out-line out-js" id="out-js">JS: </div>
+    </div>
+  </div>
+
+  <div class="info">
+    <span id="tile-count">Tiles: 0</span>
+    <span>USEL v1.0 — Kit Olivas & Ada Marie, 2026 — github.com/kitfoxs/usel-lang</span>
+    <span id="prime-count">65 primes loaded</span>
+  </div>
+</div>
+
+<script>
+// ===== USEL PRIME DEFINITIONS =====
+const PRIMES = [
+  // Substantives
+  {id:'I',glyph:'◉',cat:'sub',catName:'Substantive',level:1,slot:'subject',english:'I'},
+  {id:'YOU',glyph:'◎',cat:'sub',catName:'Substantive',level:1,slot:'subject',english:'you'},
+  {id:'SOMEONE',glyph:'♟',cat:'sub',catName:'Substantive',level:1,slot:'subject',english:'someone'},
+  {id:'SOMETHING',glyph:'◆',cat:'sub',catName:'Substantive',level:1,slot:'object',english:'something'},
+  {id:'PEOPLE',glyph:'♜',cat:'sub',catName:'Substantive',level:1,slot:'subject',english:'people'},
+  {id:'BODY',glyph:'⬡',cat:'sub',catName:'Substantive',level:2,slot:'object',english:'body'},
+  // Relational
+  {id:'KIND',glyph:'⊞',cat:'rel',catName:'Relational',level:2,slot:'modifier',english:'kind of'},
+  {id:'PART',glyph:'⊟',cat:'rel',catName:'Relational',level:2,slot:'modifier',english:'part of'},
+  // Determiners
+  {id:'THIS',glyph:'☞',cat:'det',catName:'Determiner',level:1,slot:'modifier',english:'this'},
+  {id:'SAME',glyph:'≡',cat:'det',catName:'Determiner',level:2,slot:'modifier',english:'the same'},
+  {id:'OTHER',glyph:'↔',cat:'det',catName:'Determiner',level:1,slot:'modifier',english:'other'},
+  // Quantifiers
+  {id:'ONE',glyph:'①',cat:'qnt',catName:'Quantifier',level:1,slot:'modifier',english:'one'},
+  {id:'TWO',glyph:'②',cat:'qnt',catName:'Quantifier',level:1,slot:'modifier',english:'two'},
+  {id:'SOME',glyph:'◔',cat:'qnt',catName:'Quantifier',level:1,slot:'modifier',english:'some'},
+  {id:'ALL',glyph:'●',cat:'qnt',catName:'Quantifier',level:1,slot:'modifier',english:'all'},
+  {id:'MANY',glyph:'⋮⋮',cat:'qnt',catName:'Quantifier',level:1,slot:'modifier',english:'many'},
+  // Evaluators
+  {id:'GOOD',glyph:'✦',cat:'eva',catName:'Evaluator',level:1,slot:'modifier',english:'good'},
+  {id:'BAD',glyph:'✘',cat:'eva',catName:'Evaluator',level:1,slot:'modifier',english:'bad'},
+  // Descriptors
+  {id:'BIG',glyph:'△',cat:'des',catName:'Descriptor',level:1,slot:'modifier',english:'big'},
+  {id:'SMALL',glyph:'▽',cat:'des',catName:'Descriptor',level:1,slot:'modifier',english:'small'},
+  // Mental
+  {id:'THINK',glyph:'💭',cat:'men',catName:'Mental',level:1,slot:'predicate',english:'think'},
+  {id:'KNOW',glyph:'✧',cat:'men',catName:'Mental',level:1,slot:'predicate',english:'know'},
+  {id:'WANT',glyph:'↣',cat:'men',catName:'Mental',level:1,slot:'predicate',english:'want'},
+  {id:'DONT_WANT',glyph:'↢',cat:'men',catName:'Mental',level:1,slot:'predicate',english:"don't want"},
+  {id:'FEEL',glyph:'♥',cat:'men',catName:'Mental',level:1,slot:'predicate',english:'feel'},
+  {id:'SEE',glyph:'👁',cat:'men',catName:'Mental',level:1,slot:'predicate',english:'see'},
+  {id:'HEAR',glyph:'👂',cat:'men',catName:'Mental',level:2,slot:'predicate',english:'hear'},
+  // Speech
+  {id:'SAY',glyph:'💬',cat:'spe',catName:'Speech',level:1,slot:'predicate',english:'say'},
+  {id:'WORDS',glyph:'𝐖',cat:'spe',catName:'Speech',level:2,slot:'object',english:'words'},
+  {id:'TRUE',glyph:'✓',cat:'spe',catName:'Speech',level:2,slot:'modifier',english:'true'},
+  // Actions
+  {id:'DO',glyph:'⚡',cat:'act',catName:'Action',level:1,slot:'predicate',english:'do'},
+  {id:'HAPPEN',glyph:'✴',cat:'act',catName:'Action',level:1,slot:'predicate',english:'happen'},
+  {id:'MOVE',glyph:'→',cat:'act',catName:'Action',level:1,slot:'predicate',english:'move'},
+  // Existence
+  {id:'THERE_IS',glyph:'∃',cat:'exi',catName:'Existence',level:2,slot:'predicate',english:'there is'},
+  {id:'BE',glyph:'≈',cat:'exi',catName:'Existence',level:2,slot:'predicate',english:'is'},
+  {id:'HAVE',glyph:'⊃',cat:'exi',catName:'Existence',level:2,slot:'predicate',english:'have'},
+  // Life
+  {id:'LIVE',glyph:'❋',cat:'lif',catName:'Life',level:1,slot:'predicate',english:'live'},
+  {id:'DIE',glyph:'✝',cat:'lif',catName:'Life',level:2,slot:'predicate',english:'die'},
+  // Time
+  {id:'WHEN',glyph:'⏰',cat:'tim',catName:'Time',level:2,slot:'modifier',english:'when'},
+  {id:'NOW',glyph:'⏱',cat:'tim',catName:'Time',level:1,slot:'modifier',english:'now'},
+  {id:'BEFORE',glyph:'◀',cat:'tim',catName:'Time',level:1,slot:'modifier',english:'before'},
+  {id:'AFTER',glyph:'▶',cat:'tim',catName:'Time',level:1,slot:'modifier',english:'after'},
+  {id:'LONG_TIME',glyph:'⟿',cat:'tim',catName:'Time',level:2,slot:'modifier',english:'a long time'},
+  {id:'SHORT_TIME',glyph:'⟶',cat:'tim',catName:'Time',level:2,slot:'modifier',english:'a short time'},
+  {id:'SOME_TIME',glyph:'⋯',cat:'tim',catName:'Time',level:2,slot:'modifier',english:'for some time'},
+  {id:'MOMENT',glyph:'⚡',cat:'tim',catName:'Time',level:2,slot:'modifier',english:'moment'},
+  // Space
+  {id:'WHERE',glyph:'📍',cat:'spa',catName:'Space',level:2,slot:'modifier',english:'where'},
+  {id:'HERE',glyph:'⊙',cat:'spa',catName:'Space',level:1,slot:'modifier',english:'here'},
+  {id:'ABOVE',glyph:'⬆',cat:'spa',catName:'Space',level:1,slot:'modifier',english:'above'},
+  {id:'BELOW',glyph:'⬇',cat:'spa',catName:'Space',level:1,slot:'modifier',english:'below'},
+  {id:'FAR',glyph:'↗↗',cat:'spa',catName:'Space',level:1,slot:'modifier',english:'far'},
+  {id:'NEAR',glyph:'⊷',cat:'spa',catName:'Space',level:1,slot:'modifier',english:'near'},
+  {id:'SIDE',glyph:'⊏',cat:'spa',catName:'Space',level:2,slot:'modifier',english:'side'},
+  {id:'INSIDE',glyph:'⊡',cat:'spa',catName:'Space',level:1,slot:'modifier',english:'inside'},
+  {id:'TOUCH',glyph:'☝',cat:'spa',catName:'Space',level:1,slot:'predicate',english:'touch'},
+  // Logical
+  {id:'NOT',glyph:'¬',cat:'log',catName:'Logical',level:1,slot:'modifier',english:'not'},
+  {id:'MAYBE',glyph:'~',cat:'log',catName:'Logical',level:2,slot:'modifier',english:'maybe'},
+  {id:'CAN',glyph:'◇',cat:'log',catName:'Logical',level:1,slot:'modifier',english:'can'},
+  {id:'BECAUSE',glyph:'∵',cat:'log',catName:'Logical',level:2,slot:'modifier',english:'because'},
+  {id:'IF',glyph:'⁇',cat:'log',catName:'Logical',level:2,slot:'condition',english:'if'},
+  // Intensifier
+  {id:'VERY',glyph:'⬆⬆',cat:'int',catName:'Intensifier',level:1,slot:'modifier',english:'very'},
+  {id:'MORE',glyph:'⊕',cat:'int',catName:'Intensifier',level:1,slot:'modifier',english:'more'},
+  // Similarity
+  {id:'LIKE',glyph:'≃',cat:'sim',catName:'Similarity',level:2,slot:'modifier',english:'like'},
+  {id:'WAY',glyph:'⤳',cat:'sim',catName:'Similarity',level:2,slot:'modifier',english:'way'},
+];
+
+// ===== STATE =====
+let currentLevel = 1;
+let workspace = []; // array of prime objects or special tokens
+
+// ===== RENDER PALETTE =====
+function renderPalette() {
+  const pal = document.getElementById('palette');
+  const cats = {};
+  PRIMES.forEach(p => {
+    if (p.level > currentLevel) return;
+    if (!cats[p.catName]) cats[p.catName] = [];
+    cats[p.catName].push(p);
+  });
+  
+  let html = '<div class="palette-cats">';
+  for (const [catName, tiles] of Object.entries(cats)) {
+    html += `<div class="cat-group"><div class="cat-label">${catName}</div><div class="cat-tiles">`;
+    tiles.forEach(t => {
+      html += `<div class="tile c-${t.cat}" onclick="addTile('${t.id}')" title="${t.id}: ${t.english}">
+        <span class="glyph">${t.glyph}</span><span class="label">${t.id.replace('_',' ')}</span></div>`;
+    });
+    html += '</div></div>';
+  }
+  html += '</div>';
+  pal.innerHTML = html;
+}
+
+// ===== WORKSPACE =====
+function addTile(id) {
+  const prime = PRIMES.find(p => p.id === id);
+  if (prime) { workspace.push({...prime, type:'tile'}); renderWorkspace(); }
+}
+function addClauseSep() { workspace.push({type:'clause', glyph:'·', label:'CLAUSE', english:'.'}); renderWorkspace(); }
+function addQuestion() { workspace.push({type:'punct', glyph:'?', label:'?', english:'?'}); renderWorkspace(); }
+function addExclaim() { workspace.push({type:'punct', glyph:'!', label:'!', english:'!'}); renderWorkspace(); }
+
+function removeTile(idx) { workspace.splice(idx, 1); renderWorkspace(); }
+function clearWorkspace() { workspace = []; renderWorkspace(); }
+
+function renderWorkspace() {
+  const ws = document.getElementById('workspace');
+  if (workspace.length === 0) {
+    ws.innerHTML = '<span style="color:var(--text2);font-size:14px;">Click tiles above to start composing...</span>';
+    document.getElementById('out-usel').textContent = 'USEL: (click tiles to compose)';
+    document.getElementById('out-english').textContent = 'English: ';
+    document.getElementById('out-js').textContent = 'JS: ';
+    document.getElementById('tile-count').textContent = 'Tiles: 0';
+    return;
+  }
+  
+  let html = '';
+  workspace.forEach((item, i) => {
+    if (i > 0 && item.type !== 'clause' && item.type !== 'punct' && workspace[i-1].type !== 'clause') {
+      html += '<div class="ws-connector">▸</div>';
+    }
+    if (item.type === 'clause') {
+      html += `<div class="ws-connector" onclick="removeTile(${i})" style="font-size:20px;cursor:pointer;width:30px;" title="Click to remove">·</div>`;
+    } else if (item.type === 'punct') {
+      html += `<div class="ws-connector" onclick="removeTile(${i})" style="font-size:16px;cursor:pointer;width:24px;color:var(--accent);" title="Click to remove">${item.glyph}</div>`;
+    } else {
+      html += `<div class="ws-tile c-${item.cat}" onclick="removeTile(${i})" title="Click to remove: ${item.id}">
+        <span class="glyph">${item.glyph}</span><span class="label">${item.id.replace('_',' ')}</span></div>`;
+    }
+  });
+  ws.innerHTML = html;
+  compile();
+}
+
+// ===== COMPILER =====
+function compile() {
+  // USEL notation
+  let usel = '';
+  let english = '';
+  let jsCode = '';
+  let tileCount = 0;
+  
+  workspace.forEach((item, i) => {
+    if (item.type === 'clause') {
+      usel += ' · ';
+      english += '. ';
+    } else if (item.type === 'punct') {
+      usel += item.glyph;
+      english += item.glyph + ' ';
+    } else {
+      usel += `[${item.id.replace('_',' ')}]`;
+      // Simple English compilation
+      if (i === 0 || (i > 0 && workspace[i-1].type === 'clause')) {
+        english += capitalize(item.english) + ' ';
+      } else {
+        english += item.english + ' ';
+      }
+      tileCount++;
+    }
+  });
+  
+  // Clean up English
+  english = english.trim()
+    .replace(/\s+\./g, '.')
+    .replace(/\s+\?/g, '?')
+    .replace(/\s+!/g, '!')
+    .replace(/\.\s*$/, '.');
+  if (english && !english.match(/[.?!]$/)) english += '.';
+  
+  // Simple JS compilation
+  const tiles = workspace.filter(w => w.type === 'tile');
+  if (tiles.length > 0) {
+    const subject = tiles.find(t => t.slot === 'subject');
+    const predicate = tiles.find(t => t.slot === 'predicate');
+    const obj = tiles.find(t => t.slot === 'object');
+    const mods = tiles.filter(t => t.slot === 'modifier');
+    
+    let s = subject ? subject.id.toLowerCase() : 'agent';
+    let p = predicate ? predicate.id.toLowerCase() : 'do';
+    let o = obj ? obj.id.toLowerCase() : '';
+    let m = mods.map(m => m.id.toLowerCase()).join(', ');
+    
+    jsCode = `${s}.${p}(${o}${m ? (o ? ', ' : '') + m : ''})`;
+  }
+  
+  document.getElementById('out-usel').textContent = `USEL:    ${usel}`;
+  document.getElementById('out-english').textContent = `English: "${english}"`;
+  document.getElementById('out-js').textContent = `JS:      ${jsCode}`;
+  document.getElementById('tile-count').textContent = `Tiles: ${tileCount}`;
+}
+
+function capitalize(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
+
+// ===== LEVEL SYSTEM =====
+function setLevel(lvl) {
+  currentLevel = lvl;
+  document.querySelectorAll('.level-btn').forEach((b,i) => {
+    b.classList.toggle('active', i+1 === lvl);
+  });
+  renderPalette();
+}
+
+// ===== INIT =====
+renderPalette();
+renderWorkspace();
+document.getElementById('prime-count').textContent = `${PRIMES.length} primes loaded`;
+</script>
+</body>
+</html>

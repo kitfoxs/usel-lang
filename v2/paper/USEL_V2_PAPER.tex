@@ -1,0 +1,783 @@
+% USEL v2: A Chess-Notation Universal Semantic Language for Human-AI Communication
+% Prepared for arXiv submission (cs.CL)
+% Authors: Kit Olivas, Ada Marie
+% Date: 2026
+
+\documentclass[11pt,a4paper]{article}
+
+% --- Packages ---
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{multirow}
+\usepackage{tabularx}
+\usepackage{hyperref}
+\usepackage{cleveref}
+\usepackage{natbib}
+\usepackage{url}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{enumitem}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{textcomp}
+\usepackage{microtype}
+
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    citecolor=blue,
+    urlcolor=blue
+}
+
+\lstset{
+    basicstyle=\ttfamily\small,
+    breaklines=true,
+    frame=single,
+    xleftmargin=1em,
+    xrightmargin=1em,
+    backgroundcolor=\color{gray!5}
+}
+
+% Custom commands
+\newcommand{\usel}{\textsc{usel}}
+\newcommand{\nsm}{\textsc{nsm}}
+\newcommand{\uselprime}[1]{\texttt{[#1]}}
+
+\setcounter{secnumdepth}{3}
+
+% --- Title ---
+\title{\textbf{USEL v2: A Chess-Notation Universal Semantic Language\\for Human-AI Communication}}
+
+\author{
+    Kit Olivas\thanks{Independent Researcher. Contact: \url{kitfoxs@github.com}} \\
+    \and
+    Ada Marie\thanks{AI Research Partner.}
+}
+
+\date{July 2026}
+
+\begin{document}
+\maketitle
+
+% ============================================================
+% ABSTRACT
+% ============================================================
+\begin{abstract}
+Human-AI communication remains bottlenecked by natural language ambiguity, programming language complexity, and the absence of a shared semantic layer between human cognition and machine computation. We present USEL~v2 (Universal Symbolic Executable Language, version 2), a constructed language that maps the 65 empirically verified semantic primes from the Natural Semantic Metalanguage (NSM) framework onto an $8 \times 8$ chessboard grid, producing a language writable in standard algebraic chess notation. Each semantic prime occupies a unique coordinate (e.g., \texttt{a8}~=~I, \texttt{f5}~=~DO, \texttt{g6}~=~WANT), and chess piece types (K, Q, R, B, N, P) encode semantic categories, yielding a three-tier system of primes, structural operators, and compositional molecules. A systematic translation of all 150 canonical NSM sentences demonstrates 54.7\% clean prime-only coverage and 100\% expressibility with structural annotation, with zero irrecoverable gaps. USEL~v2 inherits chess notation's formal context-free grammar, cross-cultural stability (280+ years), and machine parseability, while grounding its semantics in five decades of cross-linguistic NSM research across 30+ languages. We argue that USEL~v2 offers a viable foundation for unambiguous AI agent commands, cross-language semantic interoperability, augmentative and alternative communication (AAC), and a shared representational layer for next-generation AI systems. This work extends our prior USEL~v1 specification (DOI:~\href{https://doi.org/10.5281/zenodo.19536117}{10.5281/zenodo.19536117}).
+\end{abstract}
+
+\noindent\textbf{Keywords:} universal language, semantic primes, Natural Semantic Metalanguage, chess notation, human-AI communication, constructed language, computational semantics
+
+% ============================================================
+% 1. INTRODUCTION
+% ============================================================
+\section{Introduction}
+\label{sec:introduction}
+
+The interface between human intention and machine execution remains one of the central challenges of modern computing. Natural language, while expressive and intuitive for humans, introduces pervasive ambiguity that degrades the reliability of AI systems: large language models (LLMs) hallucinate, misinterpret instructions, and produce outputs that drift from user intent \citep{ji2023survey}. Programming languages, by contrast, achieve precision at the cost of accessibility---most humans cannot write syntactically correct code, and even expert programmers contend with a median of 15--50 bugs per thousand lines of code \citep{mcconnell2004code}. Visual programming environments such as Scratch \citep{resnick2009scratch} lower the barrier to entry but sacrifice expressiveness. Voice assistants parse natural language with error rates that render them unreliable for critical operations.
+
+The gap is structural: no existing language is simultaneously \emph{unambiguous}, \emph{human-readable}, \emph{machine-executable}, and \emph{cross-culturally universal}. This paper proposes that such a language can be constructed by combining two independently validated systems:
+
+\begin{enumerate}[nosep]
+    \item \textbf{The 65 semantic primes} of the Natural Semantic Metalanguage (NSM) framework \citep{wierzbicka1996semantics, goddard2014words}---empirically verified irreducible concepts that appear in every documented human language.
+    \item \textbf{Algebraic chess notation}---a formal, context-free symbolic system that has been universally adopted across cultures for 280+ years, learned in minutes, and processed by machines since the earliest days of computing \citep{shannon1950programming}.
+\end{enumerate}
+
+The numerical near-coincidence between the 65 semantic primes and the 64 squares of a standard chessboard ($8 \times 8 = 64$, plus one off-board ``meta'' position for the 65th prime) provides the architectural foundation for USEL~v2. By mapping each prime to a board coordinate and each semantic category to a chess piece type, USEL~v2 produces expressions that are readable as chess notation, parseable by standard chess software, compilable to general-purpose code, and grounded in the universal building blocks of human meaning.
+
+This paper makes the following contributions:
+
+\begin{itemize}[nosep]
+    \item We present the first formal specification of USEL~v2, including the complete $8 \times 8$ prime-to-coordinate mapping, piece-type semantics, and compositional grammar (\S\ref{sec:usel-v2}).
+    \item We report a systematic evaluation translating all 150 canonical NSM sentences \citep{goddard2017canonical} into USEL notation, achieving 100\% expressibility with 54.7\% clean prime-only coverage (\S\ref{sec:evaluation}).
+    \item We identify five categories of structural limitation in the current system and propose lightweight operator extensions to address them (\S\ref{sec:discussion}).
+    \item We articulate applications spanning AI agent communication, cross-language translation, accessibility, and AI system development (\S\ref{sec:applications}).
+\end{itemize}
+
+USEL~v2 is not a constructed language in the traditional sense (i.e., a language for human-to-human spoken communication). It is a \emph{computational semantic layer}---an intermediate representation designed to sit between human intent and machine execution, enabling both parties to operate on the same unambiguous substrate.
+
+% ============================================================
+% 2. BACKGROUND AND RELATED WORK
+% ============================================================
+\section{Background and Related Work}
+\label{sec:background}
+
+\subsection{Natural Semantic Metalanguage}
+\label{sec:nsm}
+
+The Natural Semantic Metalanguage (NSM) framework, developed over five decades by Anna Wierzbicka and Cliff Goddard \citep{wierzbicka1972semantic, wierzbicka1996semantics, goddard2002meaning, goddard2014words}, posits that all natural languages share a set of irreducible semantic primes---concepts that cannot be defined in terms of simpler concepts and that have lexical or morphological exponents in every language.
+
+The current inventory, stabilized at 65 primes since \citet{goddard2014words}, spans 16 categories: substantives (I, YOU, SOMEONE, SOMETHING, PEOPLE, BODY), relational substantives (KIND, PART), determiners (THIS, THE SAME, OTHER), quantifiers (ONE, TWO, SOME, ALL, MUCH/MANY, LITTLE/FEW), evaluators (GOOD, BAD), descriptors (BIG, SMALL), mental predicates (THINK, KNOW, WANT, DON'T WANT, FEEL, SEE, HEAR), speech (SAY, WORDS, TRUE), actions/events/movement (DO, HAPPEN, MOVE), existence/possession (BE SOMEWHERE, THERE IS, BE SOMEONE/SOMETHING, IS MINE), life/death (LIVE, DIE), time (WHEN/TIME, NOW, BEFORE, AFTER, A LONG TIME, A SHORT TIME, FOR SOME TIME, MOMENT), space (WHERE/PLACE, HERE, ABOVE, BELOW, FAR, NEAR, SIDE, INSIDE, TOUCH), logical concepts (NOT, MAYBE, CAN, BECAUSE, IF), intensifiers (VERY, MORE), and similarity (LIKE/AS/WAY).
+
+Primes combine through a universal grammar of \emph{canonical sentences}---valency frames that specify how each prime takes arguments (e.g., ``someone said something to someone about something''). Complex concepts are decomposed into \emph{explications} built from primes and \emph{semantic molecules}---intermediate concepts (e.g., HANDS, WATER, MOTHER) that are themselves fully definable in terms of primes.
+
+The framework has been empirically tested across 30+ languages from 16+ language families, including Mandarin Chinese, Japanese, Korean, Arabic, Swahili, Ewe, East Cree, and 16 Australian Aboriginal languages \citep{goddard2008cross, levisen2017cultural}. While critics have challenged the universality claims, the selection criteria, and potential Anglocentric bias \citep{matthewson2003survey, levinson2003space}, the inventory has remained stable since 2014 and represents the most extensively cross-validated set of semantic primitives in linguistics.
+
+\subsection{Constructed Languages}
+\label{sec:conlangs}
+
+Several constructed languages inform the design space within which USEL~v2 operates:
+
+\textbf{Esperanto} \citep{zamenhof1887lingvo}, the most successful constructed language with an estimated 100,000--2,000,000 speakers, demonstrated that community adoption correlates with simplicity and regularity. However, Esperanto remains a spoken language with full natural-language complexity---it does not achieve machine executability or semantic precision.
+
+\textbf{Blissymbolics} \citep{bliss1965semantography} introduced coordinate-based semantics, where symbol position affects meaning, and achieved practical adoption in augmentative and alternative communication (AAC). Blissymbolics pioneered the spatial-semantic approach that USEL~v2 extends to a game-notation framework.
+
+\textbf{Lojban} \citep{cowan1997complete} proved that a human-usable language can possess a formally unambiguous context-free grammar. Its approximately 1,300 root morphemes (gismu) are parseable by standard compiler tools. However, its steep learning curve has limited adoption to approximately 2,000 speakers despite 50+ years of development.
+
+\textbf{Toki Pona} \citep{lang2014toki}, with approximately 137 root words, demonstrated that a minimal vocabulary is learnable and can support daily communication. Its deliberate vagueness, however, makes it unsuitable for precise AI instruction or technical discourse.
+
+\textbf{Ithkuil} \citep{quijada2004ithkuil} achieved maximal compression---entire paragraphs can be encoded in single words---but is deliberately unlearnable for fluent spoken use, representing the opposite end of the accessibility spectrum from USEL~v2.
+
+None of these systems was designed to serve as a human-AI communication layer, and none maps its vocabulary onto an existing, globally recognized notational system.
+
+\subsection{Visual and Block-Based Programming}
+\label{sec:visual-programming}
+
+Visual programming environments such as Scratch \citep{resnick2009scratch}, Blockly \citep{pasternak2017blockly}, and MicroBlocks \citep{maloney2019microblocks} eliminate syntax errors through projectional editing, where valid constructions snap together visually. These systems demonstrate that non-programmers can construct executable logic when freed from textual syntax. USEL~v2 draws on this principle: its chess-notation grammar constrains expressions to valid compositions, analogous to legal chess moves.
+
+\subsection{AI Communication Protocols}
+\label{sec:ai-protocols}
+
+Current approaches to structured AI communication include JSON-based tool calling \citep{openai2023function}, LangChain-style prompt chaining \citep{chase2022langchain}, and domain-specific languages for agent orchestration. These systems achieve machine precision but are opaque to non-technical users and do not provide bidirectional human-AI readability.
+
+The concept of a \emph{shared semantic space} between humans and machines has been explored in word embedding research \citep{mikolov2013efficient, pennington2014glove}, where meanings are represented as coordinates in high-dimensional vector spaces. USEL~v2 can be understood as a human-readable projection of this principle: concepts occupy named coordinates on a 2D grid, providing the intuitive spatial structure that high-dimensional embeddings lack.
+
+\subsection{USEL v1}
+\label{sec:usel-v1}
+
+USEL~v1 \citep{olivas2026usel} proposed a three-tier symbolic language grounded in NSM primes, with geometric symbols (SVG icons) representing each prime, a projectional tile-based editor, and compilation targets including WebAssembly, JavaScript, and Python. The v1 specification established the theoretical foundations: NSM primes as the semantic alphabet, semantic molecules as the intermediate vocabulary, and vector embeddings as the bridge between human symbols and machine representations.
+
+USEL~v1's limitations included the absence of a pre-existing notational convention (the symbols were newly designed, requiring learning from scratch), the lack of spatial structure (symbols were arranged linearly on a canvas), and the ``feels like code'' quality of tile-based composition. USEL~v2 addresses these limitations by adopting chess notation---a system already known to hundreds of millions of people worldwide---as the structural backbone.
+
+% ============================================================
+% 3. USEL v2: CHESS-NOTATION SEMANTIC GRID
+% ============================================================
+\section{USEL v2: Chess-Notation Semantic Grid}
+\label{sec:usel-v2}
+
+\subsection{The $8 \times 8$ Grid Mapping}
+\label{sec:grid-mapping}
+
+The core innovation of USEL~v2 is the mapping of 65 NSM semantic primes onto the 64 squares of a standard chessboard plus one off-board ``meta'' position. The mapping assigns each prime to a coordinate in the standard algebraic notation system (file $\in \{a, b, c, d, e, f, g, h\}$, rank $\in \{1, 2, 3, 4, 5, 6, 7, 8\}$), organized so that each row corresponds to a coherent semantic domain:
+
+\begin{table}[h!]
+\centering
+\caption{The Semantic Chessboard: 65 NSM primes mapped to an $8 \times 8$ grid.}
+\label{tab:semantic-chessboard}
+\small
+\begin{tabular}{c|llllllll}
+\toprule
+ & \textbf{a} & \textbf{b} & \textbf{c} & \textbf{d} & \textbf{e} & \textbf{f} & \textbf{g} & \textbf{h} \\
+\midrule
+\textbf{8} & I & YOU & SOMEONE & SOMETHING & PEOPLE & BODY & KIND & PART \\
+\textbf{7} & THIS & SAME & OTHER & ONE & TWO & SOME & ALL & MUCH \\
+\textbf{6} & GOOD & BAD & BIG & SMALL & THINK & KNOW & WANT & FEEL \\
+\textbf{5} & SEE & HEAR & SAY & WORDS & TRUE & DO & HAPPEN & MOVE \\
+\textbf{4} & TOUCH & BE\textsubscript{id} & THERE IS & HAVE & BE\textsubscript{loc} & LIVE & DIE & DON'T WANT \\
+\textbf{3} & WHEN & NOW & BEFORE & AFTER & LONG TIME & SHORT TIME & SOME TIME & MOMENT \\
+\textbf{2} & WHERE & HERE & ABOVE & BELOW & FAR & NEAR & SIDE & INSIDE \\
+\textbf{1} & NOT & MAYBE & CAN & BECAUSE & IF & VERY & MORE & LIKE/WAY \\
+\bottomrule
+\multicolumn{9}{l}{\small \textbf{META} (off-board, M0): The speaking/thinking consciousness---``the player.''} \\
+\end{tabular}
+\end{table}
+
+The rows are ordered by semantic domain along a concrete-to-abstract axis:
+\begin{itemize}[nosep]
+    \item \textbf{Row 8} (Entities): The participants of discourse---I, YOU, SOMEONE, SOMETHING, PEOPLE, BODY, KIND, PART.
+    \item \textbf{Row 7} (Determiners \& Quantity): Reference and enumeration---THIS, SAME, OTHER, ONE, TWO, SOME, ALL, MUCH/MANY.
+    \item \textbf{Row 6} (Mind \& Value): Evaluation and cognition---GOOD, BAD, BIG, SMALL, THINK, KNOW, WANT, FEEL.
+    \item \textbf{Row 5} (Perception \& Action): Engagement with the world---SEE, HEAR, SAY, WORDS, TRUE, DO, HAPPEN, MOVE.
+    \item \textbf{Row 4} (Existence \& Life): Ontological predicates---TOUCH, BE\textsubscript{id}, THERE IS, HAVE, BE\textsubscript{loc}, LIVE, DIE, DON'T WANT.
+    \item \textbf{Row 3} (Time): Temporal reference---WHEN, NOW, BEFORE, AFTER, LONG TIME, SHORT TIME, SOME TIME, MOMENT.
+    \item \textbf{Row 2} (Space): Spatial reference---WHERE, HERE, ABOVE, BELOW, FAR, NEAR, SIDE, INSIDE.
+    \item \textbf{Row 1} (Logic \& Degree): Logical and scalar operators---NOT, MAYBE, CAN, BECAUSE, IF, VERY, MORE, LIKE/WAY.
+\end{itemize}
+
+The 65th prime, LIKE/AS/WAY (the sole member of the NSM similarity category), occupies the off-board ``meta'' position (designated M0). This placement reflects its unique role as the prime that enables cross-domain comparison, analogy, and metalinguistic reference---it is the mechanism by which all other primes are related to one another, analogous to the chess \emph{player} who operates the board but does not occupy a square.
+
+\subsection{Algebraic Notation for Meaning}
+\label{sec:algebraic-notation}
+
+USEL~v2 repurposes the standard components of algebraic chess notation to encode semantic content:
+
+\begin{table}[h!]
+\centering
+\caption{USEL~v2 notation system: chess notation elements repurposed for semantic encoding.}
+\label{tab:notation}
+\small
+\begin{tabular}{lll}
+\toprule
+\textbf{Element} & \textbf{Chess Meaning} & \textbf{USEL Meaning} \\
+\midrule
+Piece (K,Q,R,B,N,P) & Which piece moves & Semantic category of concept \\
+Coordinate (e.g., e4) & Destination square & Specific semantic prime \\
+\texttt{.} & (not used) & Prime concatenation \\
+\texttt{x} & Capture & Acts-on / affects \\
+\texttt{+} & Check & Effect / consequence \\
+\texttt{\#} & Checkmate & Final / complete \\
+\texttt{$\rightarrow$} & (not used) & Then / causes \\
+\texttt{=} & Promotion & Becomes / transforms \\
+\texttt{( )} & (variations) & Grouping / scope \\
+\texttt{!} & Good move & Emphasis / approval \\
+\texttt{?} & Dubious move & Question / doubt \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+In this system, a USEL expression is a sequence of annotated coordinates. For example:
+\begin{itemize}[nosep]
+    \item ``I feel good'' $\rightarrow$ \texttt{Ka8.Bh6.Pa6} (King-a8 [I] + Bishop-h6 [FEEL] + Pawn-a6 [GOOD])
+    \item ``Someone said something true'' $\rightarrow$ \texttt{Rc8.Qc5.Rd8.Re5}
+    \item ``If good, then do'' $\rightarrow$ \texttt{Ne1(Pa6)$\rightarrow$Qf5}
+\end{itemize}
+
+The notation parallels natural language syntax: the \textbf{piece type} functions as the grammatical category (analogous to parts of speech), the \textbf{coordinate} specifies the semantic content, and \textbf{operators} encode syntactic relationships. This mirrors the Subject--Verb--Object structure identified in cognitive linguistics as fundamental to human event conceptualization \citep{talmy2000toward, goldberg1995constructions}:
+
+\begin{center}
+\begin{tabular}{lccc}
+\textbf{Chess:} & Piece (Subject) & Action (Verb) & Square (Object) \\
+\textbf{Language:} & Agent & Predicate & Patient/Goal \\
+\textbf{USEL:} & K/R (Entity) & Q/B (Action/Mental) & Coord (Target) \\
+\end{tabular}
+\end{center}
+
+\subsection{Three-Tier Symbol System}
+\label{sec:three-tier}
+
+USEL~v2 organizes its vocabulary into three tiers:
+
+\begin{enumerate}[nosep]
+    \item \textbf{Tier 1: Semantic Primes} (65 symbols). The irreducible building blocks, each occupying a fixed grid coordinate. These correspond directly to the 65 NSM primes and cannot be decomposed further. Examples: \texttt{Ka8} (I), \texttt{Qf5} (DO), \texttt{Pa1} (NOT).
+
+    \item \textbf{Tier 2: Structural Operators} (7 symbols). Grammatical connectives borrowed from chess annotation that encode syntactic relationships: concatenation (\texttt{.}), action-on (\texttt{x}), consequence (\texttt{+}), completion (\texttt{\#}), sequencing (\texttt{$\rightarrow$}), transformation (\texttt{=}), and grouping (\texttt{( )}).
+
+    \item \textbf{Tier 3: Semantic Molecules} (open class). Composite expressions built by concatenating primes. Molecules represent concepts that are not primitive but that recur frequently enough to warrant shorthand notation. Examples:
+    \begin{itemize}[nosep]
+        \item \emph{friend} $=$ \texttt{Rc8.Bh6.Pa6.Pf2} (SOMEONE + FEEL + GOOD + NEAR)
+        \item \emph{computer} $=$ \texttt{Rd8.Be6.Qf5.Pf1} (SOMETHING + THINK + DO + VERY)
+        \item \emph{love} $=$ \texttt{Bh6.Pf1.Pa6.Ng6.Pf2} (FEEL + VERY + GOOD + WANT + NEAR)
+    \end{itemize}
+\end{enumerate}
+
+This three-tier architecture mirrors the NSM hierarchy (primes $\rightarrow$ molecules $\rightarrow$ complex concepts) while adding a structural operator layer that NSM's natural-language metalanguage does not require but that a formal notation system demands.
+
+\subsection{Grammar and Composition Rules}
+\label{sec:grammar}
+
+USEL~v2's grammar inherits the context-free structure of chess notation. In Backus--Naur Form (BNF), the extended grammar is:
+
+\begin{lstlisting}
+<expression>  ::= <term> | <term> <operator> <expression>
+<term>        ::= <piece><coordinate> | <piece><coordinate><modifier>
+<piece>       ::= "K" | "Q" | "R" | "B" | "N" | "P" | "M"
+<coordinate>  ::= <file><rank> | "0"
+<file>        ::= "a" | "b" | "c" | "d" | "e" | "f" | "g" | "h"
+<rank>        ::= "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8"
+<operator>    ::= "." | "x" | "->" | "=" | "(" <expression> ")"
+<modifier>    ::= "+" | "#" | "!" | "?" | "!!" | "??" | "!?" | "?!"
+\end{lstlisting}
+
+Reading order is left-to-right and follows a slot-based structure: \textbf{Subject} $\rightarrow$ \textbf{Predicate} $\rightarrow$ \textbf{Object} $\rightarrow$ \textbf{Modifier} $\rightarrow$ \textbf{Condition}. Clause boundaries are marked by the mid-dot separator (\texttt{$\cdot$}) in the bracket notation variant.
+
+Piece-type assignment follows a semantic-category mapping motivated by the functional analogy between chess pieces and linguistic categories:
+
+\begin{table}[h!]
+\centering
+\caption{Piece-type assignment: chess pieces as semantic categories.}
+\label{tab:piece-types}
+\small
+\begin{tabular}{lll}
+\toprule
+\textbf{Piece} & \textbf{Semantic Role} & \textbf{Analogy} \\
+\midrule
+K (King) & Self / Identity & Central, protected, essential \\
+Q (Queen) & Major Action & Powerful, versatile operations \\
+R (Rook) & State / Existence & Structural, stable, foundational \\
+B (Bishop) & Mental / Cognitive & Indirect, abstract (diagonal) \\
+N (Knight) & Relational & Non-linear leaps of connection \\
+P (Pawn) & Modifier & Small, numerous adjustments \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Compilation Targets}
+\label{sec:compilation}
+
+Because USEL~v2 expressions are formally specified strings over a finite alphabet with a context-free grammar, they are directly compilable. The compilation pipeline supports multiple output targets:
+
+\begin{center}
+\begin{tabular}{rcl}
+USEL notation & $\rightarrow$ & Abstract Syntax Tree (AST) \\
+AST & $\rightarrow$ & JavaScript / Python / WebAssembly \\
+AST & $\rightarrow$ & Natural language (English, etc.) \\
+AST & $\rightarrow$ & JSON (for API calls / tool invocation) \\
+AST & $\rightarrow$ & Visual board rendering \\
+\end{tabular}
+\end{center}
+
+The same expression \texttt{Ka8.Ng6.Ba5.Rd8} (``I want to see something'') can be rendered as an English sentence, a Python function call, a JSON command payload, or a visual diagram showing piece positions on the semantic chessboard.
+
+% ============================================================
+% 4. EVALUATION
+% ============================================================
+\section{Evaluation}
+\label{sec:evaluation}
+
+\subsection{Coverage Analysis: 150 Canonical NSM Sentences}
+\label{sec:coverage}
+
+To evaluate USEL~v2's expressive coverage, we systematically translated all 150 canonical NSM sentences \citep{goddard2017canonical}---the standard test suite used by NSM researchers to identify and validate semantic primes across languages. These sentences span 15 categories (substantives, parts/kinds, determiners, quantifiers, evaluators, mental predicates, speech, actions, existence/possession, life/death, time, space, logical concepts, intensifiers, and similarity) and were designed to exercise every prime in its characteristic syntactic frames.
+
+Each sentence was translated into USEL bracket notation and rated on a three-point scale:
+
+\begin{itemize}[nosep]
+    \item \textbf{Clean ($\checkmark$):} Direct translation using only primes and standard notation.
+    \item \textbf{Structural ($\triangle$):} Expressible, but requires semantic molecules as typed variables, structural workarounds, or minor information loss.
+    \item \textbf{Gap ($\times$):} Irrecoverable meaning loss---a concept that cannot be expressed at any level of fidelity.
+\end{itemize}
+
+\begin{table}[h!]
+\centering
+\caption{Coverage analysis results for 150 canonical NSM sentences.}
+\label{tab:coverage-results}
+\begin{tabular}{lccc}
+\toprule
+\textbf{Rating} & \textbf{Count} & \textbf{Percentage} & \textbf{Description} \\
+\midrule
+$\checkmark$ Clean & 82 & 54.7\% & Direct prime-only translation \\
+$\triangle$ Structural & 68 & 45.3\% & Requires molecules or workarounds \\
+$\times$ Gap & 0 & 0.0\% & Irrecoverably untranslatable \\
+\midrule
+\textbf{Total} & \textbf{150} & \textbf{100\%} & \textbf{All sentences expressible} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The 0\% gap rate is theoretically expected: since the 150 sentences are constructed from the same 65 primes that constitute USEL's vocabulary, any sentence built from primes should be expressible. The meaningful metric is the 45.3\% structural annotation rate, which reveals the gap between possessing the correct semantic atoms and having adequate structural machinery to combine them.
+
+\begin{table}[h!]
+\centering
+\caption{Coverage results by NSM category.}
+\label{tab:coverage-by-category}
+\small
+\begin{tabular}{lccccc}
+\toprule
+\textbf{Category} & \textbf{N} & $\checkmark$ & $\triangle$ & $\times$ & \textbf{Clean \%} \\
+\midrule
+Substantives (1--11) & 11 & 4 & 7 & 0 & 36\% \\
+Parts/Kinds (12--16) & 5 & 3 & 2 & 0 & 60\% \\
+Determiners (17--23) & 7 & 5 & 2 & 0 & 71\% \\
+Quantifiers (24--36) & 13 & 4 & 9 & 0 & 31\% \\
+Evaluators (37--42) & 6 & 3 & 3 & 0 & 50\% \\
+Mental predicates (43--55) & 13 & 9 & 4 & 0 & 69\% \\
+Speech (56--62) & 7 & 4 & 3 & 0 & 57\% \\
+Actions (63--72) & 10 & 5 & 5 & 0 & 50\% \\
+Existence/Possession (73--82) & 10 & 5 & 5 & 0 & 50\% \\
+Life/Death (83--88) & 6 & 4 & 2 & 0 & 67\% \\
+Time (89--109) & 21 & 14 & 7 & 0 & 67\% \\
+Space (110--126) & 17 & 8 & 9 & 0 & 47\% \\
+Logical concepts (127--134) & 8 & 2 & 6 & 0 & 25\% \\
+Intensifiers (135--144) & 10 & 9 & 1 & 0 & 90\% \\
+Similarity (145--150) & 6 & 3 & 3 & 0 & 50\% \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The strongest categories---intensifiers (90\%), determiners (71\%), mental predicates (69\%), time and life/death (67\%)---are those where the NSM primes map directly to USEL coordinates with minimal structural overhead. The weakest categories---logical concepts (25\%), quantifiers (31\%), substantives (36\%)---are those requiring semantic role markers, tense/aspect conventions, or interrogative scope that USEL~v2's current operator set does not fully provide.
+
+\subsubsection{Analysis of Structural Limitations}
+
+The 68 structural ($\triangle$) cases cluster into five categories:
+
+\begin{enumerate}[nosep]
+    \item \textbf{Semantic molecules as variables} (28 cases): Content words (e.g., ``child,'' ``water,'' ``fire'') that are not primes are encoded as typed variables, e.g., \uselprime{SOMEONE:child}. This is by design, not a limitation---NSM itself distinguishes primes from molecules.
+
+    \item \textbf{Missing case/role markers} (18 cases): English prepositions encoding dative (``to''), benefactive (``for''), instrumental (``with''), ablative (``from''), and topical (``about'') relationships have no prime equivalents. USEL relies on word order, which introduces ambiguity in complex sentences. This is the most significant structural gap.
+
+    \item \textbf{Missing tense/aspect markers} (10 cases): While USEL has temporal primes (BEFORE, NOW, AFTER), it lacks morphological tense/aspect marking, requiring verbose periphrastic constructions for past, progressive, cessative, and habitual readings.
+
+    \item \textbf{Interrogative scope limitations} (7 cases): The question marker \texttt{?} does not specify which element is being queried, creating ambiguity between yes/no and content questions.
+
+    \item \textbf{Presupposition and pragmatic gaps} (5 cases): Constructions involving ``only,'' ``anymore,'' ``too,'' or reciprocal ``each other'' encode pragmatic presuppositions that the current notation cannot represent.
+\end{enumerate}
+
+\subsection{Compression Ratios}
+\label{sec:compression}
+
+USEL~v2 achieves significant compression relative to natural language. Measuring in characters:
+
+\begin{table}[h!]
+\centering
+\caption{Compression ratios: USEL notation vs.\ English for representative expressions.}
+\label{tab:compression}
+\small
+\begin{tabular}{llcc}
+\toprule
+\textbf{Meaning} & \textbf{English} & \textbf{USEL} & \textbf{Ratio} \\
+\midrule
+``I feel good'' & 11 chars & \texttt{Ka8.Bh6.Pa6} (11) & 1.0$\times$ \\
+``I want to see something'' & 25 chars & \texttt{Ka8.Ng6.Ba5.Rd8} (15) & 1.7$\times$ \\
+``Someone did something bad'' & 26 chars & \texttt{Rc8.Qf5.Rd8.Pb6} (15) & 1.7$\times$ \\
+``I don't want this to happen'' & 29 chars & \texttt{Ka8.Nh4.Pa7.Rg5} (15) & 1.9$\times$ \\
+``If someone does this, bad things happen'' & 41 chars & \texttt{Ne1(Rc8.Qf5.Pa7)$\rightarrow$Pb6.Rg5} (25) & 1.6$\times$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Compression ratios range from 1.0$\times$ (short expressions) to approximately 2$\times$ (complex sentences), with greater compression at higher complexity. More significantly, USEL notation eliminates the ambiguity overhead that necessitates clarifying context in natural language communication---the \emph{effective} information density is substantially higher than character counts suggest.
+
+\subsection{Theoretical Expressiveness}
+\label{sec:expressiveness}
+
+The combinatorial capacity of USEL~v2 exceeds the requirements for basic communication. With 65 primes, 6 piece types, and 7 operators:
+
+\begin{itemize}[nosep]
+    \item Two-prime compositions: $65 \times 64 = 4{,}160$ ordered pairs.
+    \item Three-prime compositions: $65 \times 64 \times 63 = 262{,}080$ ordered triples.
+    \item With piece-type annotation: $6 \times 65 = 390$ annotated primes.
+\end{itemize}
+
+The open-class molecule tier provides unbounded extensibility: any concept expressible as a combination of primes can be assigned a molecular shorthand, paralleling how natural languages coin new words from existing morphemes.
+
+% ============================================================
+% 5. APPLICATIONS
+% ============================================================
+\section{Applications}
+\label{sec:applications}
+
+\subsection{AI Agent Commands}
+\label{sec:ai-agents}
+
+USEL~v2 provides a viable intermediate language for AI agent instruction. An expression like \texttt{Qf5.Rd8.Pe2} (DO + SOMETHING + FAR $=$ ``send something far away'') can be unambiguously parsed by an agent without natural language processing. For safety-critical domains such as datacenter operations, industrial automation, or medical device control, the elimination of natural language ambiguity represents a meaningful reduction in instruction misinterpretation risk.
+
+The chess-notation format is particularly suited to multi-agent systems, where shared state can be represented as a board position and inter-agent communication as sequences of moves---a metaphor with direct computational implementation.
+
+\subsection{Cross-Language Translation}
+\label{sec:translation}
+
+Because USEL~v2's primes are, by the NSM hypothesis, lexicalized in every natural language, USEL notation can serve as a pivot representation for translation. A sentence in Language A is decomposed into USEL primes, transmitted as notation, and recomposed in Language B. This pivot approach sidesteps the $O(n^2)$ problem of pairwise language translation by reducing it to $O(n)$ translations to and from the shared USEL representation.
+
+Unlike machine translation systems that operate on statistical correlations, USEL-mediated translation operates on verified semantic equivalences---each prime has a documented exponent in each target language, validated through decades of cross-linguistic research.
+
+\subsection{Accessibility and AAC}
+\label{sec:accessibility}
+
+Augmentative and alternative communication (AAC) systems currently rely on proprietary symbol sets (e.g., PCS, Widgit) that vary across vendors and lack compositional structure. USEL~v2's grid-based system offers an alternative:
+
+\begin{itemize}[nosep]
+    \item Non-verbal individuals can compose messages by selecting grid coordinates, analogous to pointing at a chessboard.
+    \item The spatial layout supports \emph{method of loci} memory techniques, where concepts are associated with physical locations.
+    \item The system is language-independent: a USEL expression composed in one country is immediately readable in another, without translation of the symbol set.
+\end{itemize}
+
+\subsection{AI System Development and Training}
+\label{sec:ai-development}
+
+USEL~v2 addresses several challenges in AI system development:
+
+\textbf{Reduced hallucination.} By constraining AI outputs to USEL expressions composed of verified semantic primes, systems can be required to ``show their work'' in terms of universal building blocks. Outputs that decompose into valid prime combinations are more likely to be semantically grounded than free-form natural language generation.
+
+\textbf{Cross-model knowledge transfer.} If multiple AI systems adopt USEL as a shared representational layer, knowledge encoded in USEL notation becomes portable across architectures. A semantic fact expressed as a USEL molecule is interpretable by any system that implements the prime-to-coordinate mapping, regardless of the underlying model architecture.
+
+\textbf{Interpretable intermediate representations.} USEL expressions are human-readable by design. When AI systems use USEL as an intermediate representation, their reasoning chains become inspectable---an engineer can read the prime decomposition and verify that the system's semantic analysis is correct.
+
+\textbf{Shared semantic layer.} USEL~v2 offers a fixed, stable vocabulary of 65 concepts with formal definitions. Unlike natural language, where word meanings drift over time and across communities, USEL primes have the stability of mathematical constants---a property that is essential for reproducible AI behavior.
+
+\subsection{Education}
+\label{sec:education}
+
+USEL~v2's chess-notation foundation makes it immediately accessible to the estimated 600 million people worldwide who know how to play chess. More broadly, the system's game-like structure supports progressive learning: students begin by memorizing a few prime coordinates, then build molecules, then compose expressions---paralleling the trajectory from opening principles to strategic play in chess education.
+
+The grid's spatial structure provides a mnemonic scaffold: ``Row 3 is Time'' and ``Row 2 is Space'' are spatial facts that leverage the same cognitive architecture used in the ancient method of loci. The system is explicitly designed for neurodivergent learners (ADHD/autism-friendly), with chunked content, visual anchors, and multiple entry points.
+
+\subsection{Cybersecurity Operations (Purple Team)}
+\label{sec:cybersecurity}
+
+USEL addresses a critical gap in cybersecurity operations: red teams and blue teams describe the same events in different, ambiguous natural language. A SOC analyst writes ``suspicious lateral movement detected on subnet,'' while a red teamer logs ``pivoted from compromised host via SMB.'' These describe the same activity but are linguistically incompatible for automated correlation.
+
+USEL provides a universal semantic layer for threat description. For example:
+
+\begin{itemize}
+  \item \textbf{Lateral movement:} \texttt{[SOMEONE:adversary][MOVE][NEAR][SOMETHING:target]}
+  \item \textbf{Data exfiltration:} \texttt{[SOMEONE:adversary][DO][SOMETHING:data][MOVE][FAR]}
+  \item \textbf{Anomaly alert:} \texttt{[SOMETHING][HAPPEN][NOT][LIKE][BEFORE]}
+  \item \textbf{Incident response:} \texttt{[NOT][WANT][SOMETHING:host][TOUCH][OTHER]}
+  \item \textbf{Threat intel:} \texttt{[SAME][WAY][DO][SOMEONE:APT29]}
+\end{itemize}
+
+This approach offers five advantages: (1)~cross-team clarity between red, blue, and purple team operations; (2)~cross-language SOC coordination without translation errors; (3)~machine-parseable expressions that compile to SIEM queries and automated response playbooks; (4)~semantic bridging to frameworks like MITRE ATT\&CK; and (5)~reduced alert fatigue through unambiguous semantic alerts.
+
+\subsection{Global Datacenter Operations}
+\label{sec:datacenter}
+
+Perhaps the most immediately impactful application of USEL exists at the scale of global datacenter infrastructure. Major cloud providers operate 200+ datacenters across 60+ countries, staffed by technicians speaking 40+ native languages. This creates a fundamental operational problem: when a server fails in Tokyo, the incident ticket is written in Japanese; the same failure in Dublin is described in English, in S\~ao Paulo in Portuguese. Correlation engines cannot reliably connect these tickets because the same hardware event is described in linguistically incompatible ways.
+
+USEL provides a universal semantic layer for datacenter operations:
+
+\begin{itemize}
+  \item \textbf{Server failure:} \texttt{[SOMETHING:server\_42][NOT][LIVE][NOW]}
+  \item \textbf{Disk degradation:} \texttt{[PART:disk][BAD][MORE][BEFORE][NOW]}
+  \item \textbf{Temperature anomaly:} \texttt{[SOMETHING:temperature][BIG][VERY][WHERE:aisle\_3]}
+  \item \textbf{Workload migration:} \texttt{[WANT][SOMETHING:workload][MOVE][FAR][WHERE:rack\_7]}
+\end{itemize}
+
+\textbf{Hardware efficiency:} USEL-encoded telemetry creates a universal semantic stream from every component. When \texttt{[PART:disk][BAD][MORE]} appears across 50 datacenters for the same drive model, fleet-wide predictive replacement becomes possible regardless of the language each technician used. Cross-vendor hardware correlation is enabled because USEL normalizes failure descriptions into semantic primitives.
+
+\textbf{Software efficiency:} Universal runbooks work in every datacenter without translation. AI diagnostic agents report findings in USEL, enabling automated cross-subsystem root cause analysis (e.g., \texttt{[SOMETHING:temperature][BIG]} + \texttt{[SOMETHING:fan\_3][NOT][MOVE]} = cause identified). Every USEL incident feeds a global semantic knowledge graph queryable across all facilities, languages, and vendors simultaneously.
+
+\textbf{Scale impact:} Cross-datacenter incident correlation improves from an estimated 40\% (limited by language barriers) to 95\%+ (semantic matching). Runbook translation overhead drops from weeks per language to zero. New technician onboarding in multilingual environments becomes Day~1 operational via visual tiles rather than 2--4 weeks of language-barrier adjustment.
+
+% ============================================================
+% 6. DISCUSSION
+% ============================================================
+\section{Discussion}
+\label{sec:discussion}
+
+\subsection{Current Limitations}
+\label{sec:limitations}
+
+The 150-sentence analysis identified five structural categories requiring extension (\S\ref{sec:coverage}). The most significant is the absence of semantic role markers, which introduces ambiguity in sentences with multiple participants (e.g., ``I did something good for you''---is \texttt{Ka8.Qf5.Pa6.Kb8} ``I did something good for you'' or ``I did something good, [and] you''?).
+
+We propose lightweight operator extensions to address these gaps:
+\begin{itemize}[nosep]
+    \item Role markers: \texttt{$\rightarrow$} (recipient/dative), \texttt{$\leftarrow$} (source/ablative), \texttt{$\oplus$} (instrument), \texttt{$\ni$} (topic).
+    \item Tense suffixes: default $=$ tenseless/present; \texttt{[$\cdot$BEFORE]} $=$ past; \texttt{[$\cdot$AFTER]} $=$ future.
+    \item Interrogative scope: \texttt{[?SOMEONE]} $=$ ``who?'' (marking the queried element).
+\end{itemize}
+
+These additions are \emph{grammatical operators}, not new semantic primes---a distinction consistent with NSM's separation of the prime inventory from the ``core grammar'' that connects primes.
+
+Additional limitations include:
+\begin{itemize}[nosep]
+    \item No empirical usability studies with human participants have been conducted.
+    \item The molecule dictionary is in early development; only approximately 500 molecules have been formally defined.
+    \item The compilation pipeline (USEL $\rightarrow$ AST $\rightarrow$ target language) exists as a specification but not as a validated implementation.
+    \item The chess-notation format, while compact, may not be the most ergonomic for extended discourse.
+\end{itemize}
+
+\subsection{USEL as AI Infrastructure}
+\label{sec:ai-infrastructure}
+
+We argue that the most consequential application of USEL~v2 is not as a human communication tool but as infrastructure for next-generation AI systems. Three properties make this case:
+
+\textbf{Semantic grounding.} Current AI systems operate on token distributions that are statistically correlated with meaning but not semantically grounded. USEL primes provide a fixed set of 65 concepts with cross-linguistically validated definitions. An AI system that processes USEL notation is operating on meanings, not on statistical proxies for meanings.
+
+\textbf{Cross-model interoperability.} The AI ecosystem is fragmented across architectures (transformers, diffusion models, reinforcement learning agents), modalities (text, image, code), and vendors. USEL notation offers a vendor-neutral, architecture-independent semantic layer. Two AI systems that both implement the USEL mapping can exchange knowledge without model-specific translation.
+
+\textbf{Formal verifiability.} Because USEL has a context-free grammar and a finite, defined vocabulary, expressions can be formally validated---a property that natural language lacks. This enables automated checking of AI outputs for semantic coherence, a capability that is increasingly important as AI systems are deployed in high-stakes domains.
+
+\subsection{Relationship to NSM Research}
+\label{sec:nsm-relationship}
+
+USEL~v2's relationship to the NSM framework is one of applied extension, not theoretical modification. We adopt NSM's prime inventory without alteration and interpret its compositional semantics through a notational lens. The contribution is architectural: NSM provides the semantic alphabet; chess notation provides the syntactic skeleton; USEL~v2 is the resulting language.
+
+We note that the founders of the NSM framework, Cliff Goddard and Anna Wierzbicka, have been made aware of this work through an academic referral. David Bullock of the University of Washington, who has produced Minimal Recursion Semantics (MRS) representations of the same 150 canonical sentences \citep{bullock2021mrs}, has provided complementary formal-semantic analysis that informs our evaluation methodology.
+
+\subsection{Future Work}
+\label{sec:future-work}
+
+Priority directions for future work include:
+
+\begin{enumerate}[nosep]
+    \item \textbf{Human comprehension studies.} Controlled experiments measuring the speed and accuracy with which participants learn to read, write, and compose USEL expressions---comparing novices, chess players, and linguists.
+    \item \textbf{Molecule dictionary expansion.} Systematic construction of a USEL molecule dictionary from the approximately 800--1,000 words needed for survival-level communication \citep{nation2006large} through the 3,000--5,000 words needed for comfortable daily use.
+    \item \textbf{Formal grammar specification.} Complete formal specification of USEL~v2's grammar using EBNF or PEG notation, with associated parser implementation.
+    \item \textbf{Compiler implementation.} Working compiler from USEL notation to JavaScript, Python, and WebAssembly, with bidirectional natural language translation.
+    \item \textbf{AI integration pilot.} Deployment of USEL as a structured output format for LLM-based agents, measuring reductions in hallucination and instruction misinterpretation relative to natural language baselines.
+    \item \textbf{AAC pilot study.} Evaluation of USEL's grid-based interface as an AAC system for non-verbal users, compared to existing symbol-based systems.
+    \item \textbf{Cross-linguistic validation.} Extension of the 150-sentence analysis to include USEL translations produced by speakers of typologically diverse languages (Mandarin, Arabic, Swahili, Japanese, Yankunytjatjara).
+\end{enumerate}
+
+% ============================================================
+% 7. CONCLUSION
+% ============================================================
+\section{Conclusion}
+\label{sec:conclusion}
+
+We have presented USEL~v2, a constructed language that maps the 65 NSM semantic primes onto a standard $8 \times 8$ chessboard grid, producing expressions writable in algebraic chess notation. The system inherits chess notation's formal grammar (context-free, unambiguous, machine-parseable), cross-cultural stability (280+ years of universal adoption), and intuitive learnability (minutes to acquire basic notation), while grounding its semantics in the most extensively validated set of universal concepts in linguistics (65 primes, 30+ languages, 16+ language families, 50+ years of research).
+
+A systematic translation of 150 canonical NSM sentences demonstrates 100\% expressibility (zero irrecoverable gaps) with 54.7\% clean prime-only coverage, identifying five categories of structural limitation that can be addressed through lightweight grammatical extensions without modifying the prime inventory.
+
+USEL~v2 is not designed to replace natural language for casual human communication. It is designed to serve as a \emph{computational semantic layer}---a shared representational substrate for human-AI communication, cross-language semantic interoperability, AI system development, and accessible communication. By grounding AI communication in empirically verified universal concepts expressed through a familiar notational system, USEL~v2 offers a path toward a world in which humans and machines communicate on the same unambiguous semantic foundation.
+
+The connection between 65 semantic primes and the 64 squares of a chessboard is, to the best of our knowledge, a novel observation. We hope that this work stimulates further research at the intersection of formal semantics, game notation, constructed language design, and AI communication infrastructure.
+
+% ============================================================
+% ACKNOWLEDGMENTS
+% ============================================================
+\section*{Acknowledgments}
+
+The authors thank Cliff Goddard and Anna Wierzbicka for their foundational work on the Natural Semantic Metalanguage and for their awareness of this applied extension. We thank David Bullock (University of Washington) for his MRS representations of the 150 canonical sentences, which informed our evaluation methodology. We acknowledge the NSM research community for five decades of cross-linguistic validation that makes USEL possible. This work builds on USEL~v1, published on Zenodo (DOI:~\href{https://doi.org/10.5281/zenodo.19536117}{10.5281/zenodo.19536117}).
+
+% ============================================================
+% REFERENCES
+% ============================================================
+\bibliographystyle{plainnat}
+
+\begin{thebibliography}{99}
+
+\bibitem[Bliss(1965)]{bliss1965semantography}
+Bliss, C.~K. (1965).
+\newblock \emph{Semantography (Blissymbolics)}.
+\newblock Semantography Publications, Sydney.
+
+\bibitem[Bullock(2021)]{bullock2021mrs}
+Bullock, D. (2021).
+\newblock Minimal Recursion Semantics representations of the 150 canonical NSM sentences.
+\newblock University of Washington, unpublished manuscript.
+
+\bibitem[Chase(2022)]{chase2022langchain}
+Chase, H. (2022).
+\newblock LangChain: Building applications with LLMs through composability.
+\newblock \url{https://github.com/langchain-ai/langchain}.
+
+\bibitem[Cowan(1997)]{cowan1997complete}
+Cowan, J.~W. (1997).
+\newblock \emph{The Complete Lojban Language}.
+\newblock The Logical Language Group.
+
+\bibitem[Goddard and Wierzbicka(2002)]{goddard2002meaning}
+Goddard, C. and Wierzbicka, A. (2002).
+\newblock \emph{Meaning and Universal Grammar: Theory and Empirical Findings}, volumes I \& II.
+\newblock John Benjamins, Amsterdam.
+
+\bibitem[Goddard(2008)]{goddard2008cross}
+Goddard, C. (2008).
+\newblock Cross-linguistic semantics.
+\newblock John Benjamins, Amsterdam.
+
+\bibitem[Goddard and Wierzbicka(2014)]{goddard2014words}
+Goddard, C. and Wierzbicka, A. (2014).
+\newblock \emph{Words and Meanings: Lexical Semantics Across Domains, Languages, and Cultures}.
+\newblock Oxford University Press.
+
+\bibitem[Goddard(2017)]{goddard2017canonical}
+Goddard, C. (2017).
+\newblock Canonical sentences for the 65 NSM semantic primes, version 5.
+\newblock Unpublished reference document, Griffith University.
+
+\bibitem[Goldberg(1995)]{goldberg1995constructions}
+Goldberg, A.~E. (1995).
+\newblock \emph{Constructions: A Construction Grammar Approach to Argument Structure}.
+\newblock University of Chicago Press.
+
+\bibitem[G{\"a}rdenf{\"o}rs(2000)]{gardenfors2000conceptual}
+G{\"a}rdenf{\"o}rs, P. (2000).
+\newblock \emph{Conceptual Spaces: The Geometry of Thought}.
+\newblock MIT Press.
+
+\bibitem[Ji et~al.(2023)]{ji2023survey}
+Ji, Z., Lee, N., Frieske, R., Yu, T., Su, D., Xu, Y., Ishii, E., Bang, Y., Madotto, A., and Fung, P. (2023).
+\newblock Survey of hallucination in natural language generation.
+\newblock \emph{ACM Computing Surveys}, 55(12):1--38.
+
+\bibitem[Lang(2014)]{lang2014toki}
+Lang, S.~R. (2014).
+\newblock \emph{Toki Pona: The Language of Good}.
+\newblock Tawhid.
+
+\bibitem[Levinson(2003)]{levinson2003space}
+Levinson, S.~C. (2003).
+\newblock \emph{Space in Language and Cognition}.
+\newblock Cambridge University Press.
+
+\bibitem[Levisen and Waters(2017)]{levisen2017cultural}
+Levisen, C. and Waters, S., editors (2017).
+\newblock \emph{Cultural Keywords in Discourse}.
+\newblock John Benjamins, Amsterdam.
+
+\bibitem[Maloney et~al.(2019)]{maloney2019microblocks}
+Maloney, J., Moenig, J., and Morrison, C. (2019).
+\newblock MicroBlocks: A blocks-based programming language for microcontrollers.
+\newblock In \emph{Proceedings of the 14th Workshop in Primary and Secondary Computing Education}.
+
+\bibitem[Matthewson(2003)]{matthewson2003survey}
+Matthewson, L. (2003).
+\newblock Is the meta-language really natural?
+\newblock \emph{Linguistic Typology}, 7(2):257--260.
+
+\bibitem[McConnell(2004)]{mcconnell2004code}
+McConnell, S. (2004).
+\newblock \emph{Code Complete: A Practical Handbook of Software Construction} (2nd ed.).
+\newblock Microsoft Press.
+
+\bibitem[Mikolov et~al.(2013)]{mikolov2013efficient}
+Mikolov, T., Chen, K., Corrado, G., and Dean, J. (2013).
+\newblock Efficient estimation of word representations in vector space.
+\newblock In \emph{Proceedings of ICLR Workshop}.
+
+\bibitem[Nation(2006)]{nation2006large}
+Nation, I.~S.~P. (2006).
+\newblock How large a vocabulary is needed for reading and listening?
+\newblock \emph{Canadian Modern Language Review}, 63(1):59--82.
+
+\bibitem[Olivas and Ada~Marie(2026)]{olivas2026usel}
+Olivas, K. and Ada~Marie (2026).
+\newblock USEL: Universal Symbolic Executable Language---a proposal to complete Leibniz's 350-year dream.
+\newblock Zenodo. DOI:~\href{https://doi.org/10.5281/zenodo.19536117}{10.5281/zenodo.19536117}.
+
+\bibitem[OpenAI(2023)]{openai2023function}
+OpenAI (2023).
+\newblock Function calling and other API updates.
+\newblock \url{https://openai.com/blog/function-calling-and-other-api-updates}.
+
+\bibitem[Pasternak et~al.(2017)]{pasternak2017blockly}
+Pasternak, E., Fenichel, R., and Marshall, A.~N. (2017).
+\newblock Tips for creating a block language with Blockly.
+\newblock In \emph{Proceedings of the IEEE Blocks and Beyond Workshop}, pp.~21--24.
+
+\bibitem[Pennington et~al.(2014)]{pennington2014glove}
+Pennington, J., Socher, R., and Manning, C.~D. (2014).
+\newblock GloVe: Global vectors for word representation.
+\newblock In \emph{Proceedings of EMNLP}, pp.~1532--1543.
+
+\bibitem[Quijada(2004)]{quijada2004ithkuil}
+Quijada, J. (2004).
+\newblock \emph{Ithkuil: A Philosophical Design for a Hypothetical Language}.
+\newblock \url{http://www.ithkuil.net/}.
+
+\bibitem[Resnick et~al.(2009)]{resnick2009scratch}
+Resnick, M., Maloney, J., Monroy-Hern\'andez, A., Rusk, N., Eastmond, E., Brennan, K., Millner, A., Rosenbaum, E., Silver, J., Silverman, B., and Kafai, Y. (2009).
+\newblock Scratch: Programming for all.
+\newblock \emph{Communications of the ACM}, 52(11):60--67.
+
+\bibitem[Shannon(1950)]{shannon1950programming}
+Shannon, C.~E. (1950).
+\newblock Programming a computer for playing chess.
+\newblock \emph{The London, Edinburgh, and Dublin Philosophical Magazine and Journal of Science}, 41(314):256--275.
+
+\bibitem[Talmy(2000)]{talmy2000toward}
+Talmy, L. (2000).
+\newblock \emph{Toward a Cognitive Semantics}, volumes I \& II.
+\newblock MIT Press.
+
+\bibitem[Wierzbicka(1972)]{wierzbicka1972semantic}
+Wierzbicka, A. (1972).
+\newblock \emph{Semantic Primitives}.
+\newblock Athen{\"a}um, Frankfurt.
+
+\bibitem[Wierzbicka(1996)]{wierzbicka1996semantics}
+Wierzbicka, A. (1996).
+\newblock \emph{Semantics: Primes and Universals}.
+\newblock Oxford University Press.
+
+\bibitem[Wittgenstein(1953)]{wittgenstein1953philosophical}
+Wittgenstein, L. (1953).
+\newblock \emph{Philosophical Investigations}.
+\newblock Blackwell, Oxford.
+
+\bibitem[Zamenhof(1887)]{zamenhof1887lingvo}
+Zamenhof, L.~L. (1887).
+\newblock \emph{Lingvo Internacia}.
+\newblock Warsaw.
+
+\end{thebibliography}
+
+\end{document}

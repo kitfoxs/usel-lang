@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>USEL Tile Editor Mockup</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background: #1a1a2e; color: #eee; padding: 20px; }
+  
+  h1 { text-align: center; margin-bottom: 5px; font-size: 24px; color: #fff; }
+  h2 { font-size: 16px; margin-bottom: 10px; color: #aaa; font-weight: normal; }
+  h3 { font-size: 14px; margin: 10px 0 8px; color: #ccc; text-transform: uppercase; letter-spacing: 1px; }
+  
+  .editor { max-width: 900px; margin: 0 auto; background: #16213e; border-radius: 12px; overflow: hidden; border: 1px solid #334; }
+  .editor-header { background: #0f3460; padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; }
+  .editor-header h2 { margin: 0; color: #fff; font-size: 16px; font-weight: 600; }
+  .level-badge { background: #2ecc71; color: #000; padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: 700; }
+  
+  /* Tile Palette */
+  .palette { padding: 15px; border-bottom: 1px solid #334; }
+  .palette-section { margin-bottom: 12px; }
+  .palette-label { font-size: 11px; color: #888; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
+  .palette-row { display: flex; flex-wrap: wrap; gap: 6px; }
+  
+  /* Individual Tiles */
+  .tile {
+    width: 62px; height: 70px;
+    border-radius: 8px;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    cursor: pointer;
+    border: 2px solid rgba(255,255,255,0.15);
+    transition: all 0.15s;
+    position: relative;
+  }
+  .tile:hover { transform: translateY(-2px); border-color: rgba(255,255,255,0.4); }
+  .tile .glyph { font-size: 22px; margin-bottom: 2px; }
+  .tile .label { font-size: 9px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+  
+  /* Category Colors */
+  .cat-substantive { background: #e74c3c; color: #fff; }
+  .cat-relational { background: #e67e22; color: #fff; }
+  .cat-determiner { background: #f1c40f; color: #222; }
+  .cat-quantifier { background: #2ecc71; color: #fff; }
+  .cat-evaluator { background: #1abc9c; color: #fff; }
+  .cat-descriptor { background: #3498db; color: #fff; }
+  .cat-mental { background: #9b59b6; color: #fff; }
+  .cat-speech { background: #e91e63; color: #fff; }
+  .cat-action { background: #ff5722; color: #fff; }
+  .cat-existence { background: #795548; color: #fff; }
+  .cat-life { background: #607d8b; color: #fff; }
+  .cat-time { background: #00bcd4; color: #fff; }
+  .cat-space { background: #4caf50; color: #fff; }
+  .cat-logical { background: #2196f3; color: #fff; }
+  .cat-intensifier { background: #ff9800; color: #222; }
+  .cat-similarity { background: #9c27b0; color: #fff; }
+  .cat-molecule { background: #455a64; color: #fff; border-style: dashed; }
+  
+  /* Connection Points */
+  .tile::before {
+    content: '';
+    position: absolute;
+    left: -6px; top: 50%;
+    transform: translateY(-50%);
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: rgba(0,0,0,0.3);
+    border: 1.5px solid rgba(255,255,255,0.3);
+  }
+  .tile::after {
+    content: '';
+    position: absolute;
+    right: -6px; top: 50%;
+    transform: translateY(-50%);
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.5);
+    border: 1.5px solid rgba(255,255,255,0.5);
+  }
+  
+  /* Workspace */
+  .workspace { padding: 20px; min-height: 120px; border-bottom: 1px solid #334; }
+  .workspace-label { font-size: 11px; color: #888; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px; }
+  .workspace-row { display: flex; align-items: center; gap: 0; }
+  .workspace .tile { width: 72px; height: 80px; }
+  .workspace .tile .glyph { font-size: 26px; }
+  .workspace .tile .label { font-size: 10px; }
+  .connector { width: 24px; height: 3px; background: linear-gradient(90deg, rgba(255,255,255,0.6), rgba(255,255,255,0.2)); position: relative; }
+  .connector::after { content: '▶'; position: absolute; right: -2px; top: -8px; font-size: 10px; color: rgba(255,255,255,0.5); }
+  
+  /* Output Panel */
+  .output { padding: 15px 20px; background: #0d1b2a; }
+  .output-label { font-size: 11px; color: #888; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+  .output-line { font-family: 'SF Mono', 'Fira Code', monospace; font-size: 13px; margin-bottom: 4px; padding: 4px 8px; border-radius: 4px; }
+  .output-usel { color: #f1c40f; background: rgba(241,196,15,0.1); }
+  .output-english { color: #2ecc71; background: rgba(46,204,113,0.1); }
+  .output-js { color: #3498db; background: rgba(52,152,219,0.1); }
+
+  /* Section Headers */
+  .section-title { text-align: center; padding: 30px 0 15px; }
+  .section-title h2 { color: #fff; font-size: 20px; }
+  .section-title p { color: #888; font-size: 13px; margin-top: 5px; }
+
+  /* Molecule Decomposition */
+  .molecule-demo { max-width: 900px; margin: 20px auto; background: #16213e; border-radius: 12px; padding: 20px; border: 1px solid #334; }
+  .molecule-row { display: flex; align-items: center; gap: 8px; margin: 12px 0; flex-wrap: wrap; }
+  .molecule-equals { font-size: 24px; color: #f1c40f; margin: 0 8px; }
+  .molecule-name { font-size: 16px; font-weight: 700; color: #fff; background: #455a64; padding: 8px 16px; border-radius: 8px; border: 2px dashed rgba(255,255,255,0.3); }
+  .mini-tile { width: 54px; height: 62px; border-radius: 6px; display: flex; flex-direction: column; align-items: center; justify-content: center; border: 1.5px solid rgba(255,255,255,0.15); }
+  .mini-tile .glyph { font-size: 18px; }
+  .mini-tile .label { font-size: 8px; font-weight: 600; text-transform: uppercase; }
+  .plus { font-size: 18px; color: #888; }
+
+  /* Color Legend */
+  .legend { max-width: 900px; margin: 20px auto; display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+  .legend-item { display: flex; align-items: center; gap: 8px; padding: 6px 10px; border-radius: 6px; background: rgba(255,255,255,0.05); }
+  .legend-swatch { width: 16px; height: 16px; border-radius: 4px; }
+  .legend-text { font-size: 11px; color: #ccc; }
+
+  .footer { text-align: center; padding: 20px; color: #555; font-size: 12px; }
+</style>
+</head>
+<body>
+
+<h1>🔮 USEL Visual Tile Editor</h1>
+<p style="text-align:center; color:#888; margin-bottom:20px; font-size:13px;">Universal Symbolic Executable Language — Mockup v1</p>
+
+<!-- COLOR LEGEND -->
+<div class="section-title"><h2>Category Color Key</h2><p>16 semantic categories, each with a distinct color</p></div>
+<div class="legend">
+  <div class="legend-item"><div class="legend-swatch" style="background:#e74c3c"></div><span class="legend-text">Substantive</span></div>
+  <div class="legend-item"><div class="legend-swatch" style="background:#e67e22"></div><span class="legend-text">Relational</span></div>
+  <div class="legend-item"><div class="legend-swatch" style="background:#f1c40f"></div><span class="legend-text">Determiner</span></div>
+  <div class="legend-item"><div class="legend-swatch" style="background:#2ecc71"></div><span class="legend-text">Quantifier</span></div>
+  <div class="legend-item"><div class="legend-swatch" style="background:#1abc9c"></div><span class="legend-text">Evaluator</span></div>
+  <div class="legend-item"><div class="legend-swatch" style="background:#3498db"></div><span class="legend-text">Descriptor</span></div>
+  <div class="legend-item"><div class="legend-swatch" style="background:#9b59b6"></div><span class="legend-text">Mental</span></div>
+  <div class="legend-item"><div class="legend-swatch" style="background:#e91e63"></div><span class="legend-text">Speech</span></div>
+  <div class="legend-item"><div class="legend-swatch" style="background:#ff5722"></div><span class="legend-text">Action</span></div>
+  <div class="legend-item"><div class="legend-swatch" style="background:#795548"></div><span class="legend-text">Existence</span></div>
+  <div class="legend-item"><div class="legend-swatch" style="background:#607d8b"></div><span class="legend-text">Life/Death</span></div>
+  <div class="legend-item"><div class="legend-swatch" style="background:#00bcd4"></div><span class="legend-text">Time</span></div>
+  <div class="legend-item"><div class="legend-swatch" style="background:#4caf50"></div><span class="legend-text">Space</span></div>
+  <div class="legend-item"><div class="legend-swatch" style="background:#2196f3"></div><span class="legend-text">Logical</span></div>
+  <div class="legend-item"><div class="legend-swatch" style="background:#ff9800"></div><span class="legend-text">Intensifier</span></div>
+  <div class="legend-item"><div class="legend-swatch" style="background:#9c27b0"></div><span class="legend-text">Similarity</span></div>
+</div>
+
+<!-- MAIN EDITOR -->
+<div class="section-title"><h2>Full Editor — "I want to see something big"</h2><p>Tiles snap together left-to-right, invalid connections are impossible</p></div>
+<div class="editor">
+  <div class="editor-header">
+    <h2>🔮 USEL Editor</h2>
+    <span class="level-badge">Level 1 🟢</span>
+  </div>
+  
+  <!-- Palette -->
+  <div class="palette">
+    <div class="palette-section">
+      <div class="palette-label">Substantives</div>
+      <div class="palette-row">
+        <div class="tile cat-substantive"><span class="glyph">◉</span><span class="label">I</span></div>
+        <div class="tile cat-substantive"><span class="glyph">◎</span><span class="label">You</span></div>
+        <div class="tile cat-substantive"><span class="glyph">♟</span><span class="label">Someone</span></div>
+        <div class="tile cat-substantive"><span class="glyph">◆</span><span class="label">Something</span></div>
+        <div class="tile cat-substantive"><span class="glyph">♜</span><span class="label">People</span></div>
+        <div class="tile cat-substantive"><span class="glyph">⬡</span><span class="label">Body</span></div>
+      </div>
+    </div>
+    <div class="palette-section">
+      <div class="palette-label">Mental</div>
+      <div class="palette-row">
+        <div class="tile cat-mental"><span class="glyph">💭</span><span class="label">Think</span></div>
+        <div class="tile cat-mental"><span class="glyph">✦</span><span class="label">Know</span></div>
+        <div class="tile cat-mental"><span class="glyph">↣</span><span class="label">Want</span></div>
+        <div class="tile cat-mental"><span class="glyph">↢</span><span class="label">Don't Want</span></div>
+        <div class="tile cat-mental"><span class="glyph">♥</span><span class="label">Feel</span></div>
+        <div class="tile cat-mental"><span class="glyph">👁</span><span class="label">See</span></div>
+        <div class="tile cat-mental"><span class="glyph">👂</span><span class="label">Hear</span></div>
+      </div>
+    </div>
+    <div class="palette-section">
+      <div class="palette-label">Actions &amp; Evaluators</div>
+      <div class="palette-row">
+        <div class="tile cat-action"><span class="glyph">⚡</span><span class="label">Do</span></div>
+        <div class="tile cat-action"><span class="glyph">✴</span><span class="label">Happen</span></div>
+        <div class="tile cat-action"><span class="glyph">→</span><span class="label">Move</span></div>
+        <div class="tile cat-evaluator"><span class="glyph">✦</span><span class="label">Good</span></div>
+        <div class="tile cat-evaluator"><span class="glyph">✘</span><span class="label">Bad</span></div>
+        <div class="tile cat-descriptor"><span class="glyph">△</span><span class="label">Big</span></div>
+        <div class="tile cat-descriptor"><span class="glyph">▽</span><span class="label">Small</span></div>
+      </div>
+    </div>
+    <div class="palette-section">
+      <div class="palette-label">Space &amp; Time &amp; Logical</div>
+      <div class="palette-row">
+        <div class="tile cat-space"><span class="glyph">⬆</span><span class="label">Above</span></div>
+        <div class="tile cat-space"><span class="glyph">⬇</span><span class="label">Below</span></div>
+        <div class="tile cat-space"><span class="glyph">⊷</span><span class="label">Near</span></div>
+        <div class="tile cat-space"><span class="glyph">⊡</span><span class="label">Inside</span></div>
+        <div class="tile cat-space"><span class="glyph">⊘</span><span class="label">Touch</span></div>
+        <div class="tile cat-time"><span class="glyph">⏱</span><span class="label">Now</span></div>
+        <div class="tile cat-time"><span class="glyph">◀</span><span class="label">Before</span></div>
+        <div class="tile cat-time"><span class="glyph">▶</span><span class="label">After</span></div>
+        <div class="tile cat-logical"><span class="glyph">¬</span><span class="label">Not</span></div>
+        <div class="tile cat-logical"><span class="glyph">∵</span><span class="label">Because</span></div>
+        <div class="tile cat-logical"><span class="glyph">?</span><span class="label">If</span></div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Workspace -->
+  <div class="workspace">
+    <div class="workspace-label">Workspace — drag tiles here to compose</div>
+    <div class="workspace-row">
+      <div class="tile cat-substantive"><span class="glyph">◉</span><span class="label">I</span></div>
+      <div class="connector"></div>
+      <div class="tile cat-mental"><span class="glyph">↣</span><span class="label">Want</span></div>
+      <div class="connector"></div>
+      <div class="tile cat-mental"><span class="glyph">👁</span><span class="label">See</span></div>
+      <div class="connector"></div>
+      <div class="tile cat-substantive"><span class="glyph">◆</span><span class="label">Something</span></div>
+      <div class="connector"></div>
+      <div class="tile cat-descriptor"><span class="glyph">△</span><span class="label">Big</span></div>
+    </div>
+  </div>
+  
+  <!-- Output -->
+  <div class="output">
+    <div class="output-label">Compilation Output</div>
+    <div class="output-line output-usel">USEL: &nbsp; [I][WANT][SEE][SOMETHING][BIG]</div>
+    <div class="output-line output-english">English: "I want to see something big."</div>
+    <div class="output-line output-js">JS: &nbsp;&nbsp;&nbsp; agent.want(actions.see(something.where(big)))</div>
+  </div>
+</div>
+
+<!-- MOLECULE DECOMPOSITION -->
+<div class="section-title"><h2>Molecule Decomposition — How Tiles Build Complex Concepts</h2><p>Tier 2 molecules are composed from Tier 0 primes, like Chinese radicals</p></div>
+
+<div class="molecule-demo">
+  <h3 style="color:#f1c40f; margin-bottom:15px;">🌊 WATER</h3>
+  <div class="molecule-row">
+    <span class="molecule-name">🌊 WATER</span>
+    <span class="molecule-equals">=</span>
+    <div class="mini-tile cat-substantive"><span class="glyph">◆</span><span class="label">Something</span></div>
+    <span class="plus">+</span>
+    <div class="mini-tile cat-action"><span class="glyph">→</span><span class="label">Move</span></div>
+    <span class="plus">+</span>
+    <div class="mini-tile cat-space"><span class="glyph">⬇</span><span class="label">Below</span></div>
+    <span class="plus">+</span>
+    <div class="mini-tile cat-space"><span class="glyph">⊘</span><span class="label">Touch</span></div>
+  </div>
+  <p style="color:#aaa; font-size:12px; margin-top:8px;">A <b>thing</b> that <b>moves</b> (flows), goes <b>below</b> (falls/gravity), can be <b>touched</b> (tangible liquid)</p>
+</div>
+
+<div class="molecule-demo">
+  <h3 style="color:#ff5722; margin-bottom:15px;">🔥 FIRE</h3>
+  <div class="molecule-row">
+    <span class="molecule-name">🔥 FIRE</span>
+    <span class="molecule-equals">=</span>
+    <div class="mini-tile cat-substantive"><span class="glyph">◆</span><span class="label">Something</span></div>
+    <span class="plus">+</span>
+    <div class="mini-tile cat-action"><span class="glyph">→</span><span class="label">Move</span></div>
+    <span class="plus">+</span>
+    <div class="mini-tile cat-space"><span class="glyph">⬆</span><span class="label">Above</span></div>
+    <span class="plus">+</span>
+    <div class="mini-tile cat-evaluator"><span class="glyph">✘</span><span class="label">Bad</span></div>
+    <span class="plus">+</span>
+    <div class="mini-tile cat-space"><span class="glyph">⊘</span><span class="label">Touch</span></div>
+  </div>
+  <p style="color:#aaa; font-size:12px; margin-top:8px;">A <b>thing</b> that <b>moves</b> (flickers), goes <b>above</b> (rises), is <b>bad to touch</b> (burns)</p>
+</div>
+
+<div class="molecule-demo">
+  <h3 style="color:#2ecc71; margin-bottom:15px;">🌳 TREE</h3>
+  <div class="molecule-row">
+    <span class="molecule-name">🌳 TREE</span>
+    <span class="molecule-equals">=</span>
+    <div class="mini-tile cat-substantive"><span class="glyph">◆</span><span class="label">Something</span></div>
+    <span class="plus">+</span>
+    <div class="mini-tile cat-life"><span class="glyph">❋</span><span class="label">Live</span></div>
+    <span class="plus">+</span>
+    <div class="mini-tile cat-descriptor"><span class="glyph">△</span><span class="label">Big</span></div>
+    <span class="plus">+</span>
+    <div class="mini-tile cat-space"><span class="glyph">⬆</span><span class="label">Above</span></div>
+    <span class="plus">+</span>
+    <div class="mini-tile cat-space"><span class="glyph">⬇</span><span class="label">Below</span></div>
+  </div>
+  <p style="color:#aaa; font-size:12px; margin-top:8px;">A <b>living thing</b> that is <b>big</b>, with parts <b>above</b> (trunk/branches) and <b>below</b> (roots)</p>
+</div>
+
+<div class="molecule-demo">
+  <h3 style="color:#e74c3c; margin-bottom:15px;">❤️ LOVE</h3>
+  <div class="molecule-row">
+    <span class="molecule-name">❤️ LOVE</span>
+    <span class="molecule-equals">=</span>
+    <div class="mini-tile cat-mental"><span class="glyph">♥</span><span class="label">Feel</span></div>
+    <span class="plus">+</span>
+    <div class="mini-tile cat-intensifier"><span class="glyph">⬆⬆</span><span class="label">Very</span></div>
+    <span class="plus">+</span>
+    <div class="mini-tile cat-evaluator"><span class="glyph">✦</span><span class="label">Good</span></div>
+    <span class="plus">+</span>
+    <div class="mini-tile cat-mental"><span class="glyph">↣</span><span class="label">Want</span></div>
+    <span class="plus">+</span>
+    <div class="mini-tile cat-space"><span class="glyph">⊷</span><span class="label">Near</span></div>
+    <span class="plus">+</span>
+    <div class="mini-tile cat-substantive"><span class="glyph">♟</span><span class="label">Someone</span></div>
+  </div>
+  <p style="color:#aaa; font-size:12px; margin-top:8px;">To <b>feel very good</b> and <b>want</b> to be <b>near someone</b> — matches Wierzbicka's own explication</p>
+</div>
+
+<div class="footer">
+  USEL: Universal Symbolic Executable Language — Kit Olivas & Ada Marie, 2026<br>
+  github.com/kitfoxs/usel-lang | DOI: 10.5281/zenodo.19536117
+</div>
+
+</body>
+</html>

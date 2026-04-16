@@ -1,0 +1,1975 @@
+============================================================================
+150 NSM CANONICAL SENTENCES IN MRS FRAMEWORK
+
+David Bullock (bullockd@uw.edu) 2021-Feb-23.
+
+This file shows a computer representation of natural language meaning grounded in the semantic primes of Natural Semantic Metalanguage (NSM). The sentences are based on the "150 canonical sentences for identifying semantic primes and the core lexicogrammar of any language" (Goddard and Wierzbicka 2017).
+
+Minimal Recursion Semantics (MRS) is a flat semantic framework used by computers to represent the meaning of parsed natural language sentences (Copestake et al. 1999). MRS has been used for generating and translating natural language. It has also been used for inference and question answering.
+
+The 150 NSM Canonical Sentences are represented below using MRS. Each predicate represents a single NSM prime. Arguments are given by variables (x1) and handles (h2).
+
+MRS is usually written using traditional predicate logic form (with arguments following the predicate name):
+
+    knows_about(x1,h2,x3)
+
+But an equivalent infix form is used instead below, so each predicate is written as a minimal NSM sentence:
+
+    x1 knows h2 about x3.
+
+The original canonical sentences include some complex semantic molecules (such as man [m] and woman [m]). Although NSM primes and MRS could be used to define new predicates that represent these semantic molecules, the 150 sentences below have been reworded to avoid semantic molecules.
+
+References:
+
+Copestake, Ann, Dan Flickinger, Carl Pollard, and Ivan Sag. 1999. Minimal Recursion Semantics: An Introduction. Stanford: CSLI.
+
+Goddard, Cliff and Wierzbicka, Anna. 2017. "150 canonical sentences for identifying semantic primes and the core lexicogrammar of any language" May 2017 update (v5). First version published Goddard, Cliff and Wierzbicka, Anna. 2014. Semantic fieldwork and lexical universals. Studies in Language 38(1), 80-127.
+============================================================================
+SOMEONE~WHO, SOMETHING~THING~WHAT, PEOPLE, BODY
+
+(Sometimes expressions like 'one person' may be used instead of SOMEONE.)
+============================================================================
+Predicates:
+    x1 is someone.
+    x1 is things.
+    x1 is people.
+    b1 is the body of x1.
+============================================================================
+1. Who did it?
+
+john1 wants to know who does this1.
+
+h0: john1 wants h1.
+h1: for all x1 if h2 then h3.
+ h2: x1 is someone.
+ h2: x1 does this1.
+h3: john1 knows h2.
+============================================================================
+2. Someone took (ate, broke, etc.) it. I don't know who.
+
+someone does this1 to it1. mary1 does not know who.
+
+h0: there is x1 such that h1.
+h1: x1 is someone.
+h1: x1 does this1 to it1.
+h1: h2 is not true.
+h2: mary1 knows h3.
+h3: x1 does this1 to it1.
+============================================================================
+3. What happened?
+
+john1 wants to know what happens here.
+
+h0: john1 wants h1.
+h1: for all x1 if h2 then h4.
+ h2: h3 is here.
+ h3: x1 happens.
+h4: john1 knows h2.
+============================================================================
+4. I did something bad.
+
+mary1 does something bad.
+
+h0: there is x1 such that h1.
+h1: mary1 does x1.
+h1: x1 is bad.
+============================================================================
+5. What is this?
+
+john1 wants to know what kind of thing this1 is.
+
+h0: john1 wants h1.
+h1: for all k1 if h2 then h3.
+ h2: this1 is of kind k1.
+h3: john1 knows h2 about this1.
+============================================================================
+6. This thing is big/small.
+
+this1 thing is big. this2 thing is small.
+
+h0: this1 is things.
+h0: this1 is big.
+h0: this2 is things.
+h0: this2 is small.
+============================================================================
+7. They are good people.
+
+these1 are good people.
+
+h0: for all x1 if h1 then h2.
+ h1: x1 is one of these1.
+h2: x1 is people.
+h2: x1 is good.
+============================================================================
+8. Many people don't know this.
+
+many people do not know this1.
+
+h0: there is x1 such that h1.
+h1: x1 is people.
+h1: x1 is many or much.
+h1: for all x2 if h2 then h3.
+ h2: x2 is one of x1.
+h3: h4 is not true.
+h4: x2 knows this1.
+============================================================================
+9. Sometimes bad things happen to (good) people.
+
+sometimes bad things happen to good people.
+
+h0: there is x1 x2 t1 such that h1.
+h1: x1 is bad.
+h1: x2 is people.
+h1: x2 is good.
+h1: h2 is at time t1.
+h2: x1 happens to x2.
+============================================================================
+10. The body of a man is not like the body of a woman.
+
+the body of john1 is not like the body of mary1.
+
+h0: there is b1 b2 such that h1.
+h1: b1 is the body of john1.
+h1: b2 is the body of mary1.
+h1: h2 is not true.
+h2: b1 is like b2.
+============================================================================
+11. The stomach (liver, etc.) is part of people's bodies, it is inside the body.
+
+this1 kind of thing is part of people's bodies. it is inside the body.
+
+h0: for all x1 if h1 then h3.
+ h1: there is x2 such that h2.
+ h2: x2 is people.
+ h2: x1 is one of x2.
+h3: there is b1 x3 such that h4.
+h4: b1 is the body of x1.
+h4: x3 is part of b1.
+h4: x3 is of kind this1.
+h4: x3 is inside b1.
+============================================================================
+PARTS, KINDS
+============================================================================
+Predicates:
+    x1 is part of x2.
+    x1 is of kind k1.
+============================================================================
+12. This thing (knife, axe, etc.) has two parts.
+
+this1 thing has two parts.
+
+h0: there is x1 x2 such that h1.
+h1: x1 is part of this1.
+h1: x2 is part of this1.
+h1: x1 is not the same as x2.
+============================================================================
+13. People's (human) bodies have many parts.
+
+people's bodies have many parts.
+
+h0: for all b1 if h1 then h3.
+ h1: there is x1 x2 such that h2.
+ h2: x2 is people.
+ h2: x1 is one of x2.
+ h2: b1 is the body of x1.
+h3: there is x3 such that h4.
+h4: x3 is many or much.
+h4: for all x4 if h5 then h6.
+ h5: x4 is one of x3.
+h6: x4 is part of b1.
+============================================================================
+14. There are two/many kinds of yam (bat, bird, etc.).
+
+there are two kinds of fish1 here.
+
+h0: h1 is here.
+h1: there is x1 x2 k1 k2 such that h2.
+h2: x1 is of kind k1.
+h2: x2 is of kind k2.
+h2: k1 is of kind fish1.
+h2: k2 is of kind fish1.
+h2: h3 is not true.
+h3: x1 is of kind k2.
+h2: h4 is not true.
+h4: x2 is of kind k1.
+============================================================================
+15. It looks like the same kind (of fish, bird, etc.). But it's not. It's another kind.
+
+john1 thinks this1 is the same kind as this2. it is not. it is another kind.
+
+h0: john1 thinks h1.
+h1: for all k1 if h2 then h3.
+ h2: this2 is of kind k1.
+h3: this1 is of kind k1.
+h0: h1 is not true.
+h0: there is k2 such that h4.
+h4: this2 is of kind k2.
+h4: h5 is not true.
+h5: this1 is of kind k2.
+============================================================================
+16. There is (only) one kind of fish in this lake (one kind of bird in this forest, etc.).
+
+there is only one kind of thing living here.
+
+h0: h1 is here.
+h1: for all x1 if h2 then h3.
+ h2: x1 lives.
+h3: h4 is not true.
+h4: there is x2 k1 such that h5.
+h5: x2 lives.
+h5: x2 is of kind k1.
+h5: h5 is not true.
+h6: x1 is of kind k1.
+============================================================================
+THIS, THE SAME, OTHER~ELSE, [BIG], [SMALL]
+
+In some languages, THIS will have a special variant when used as a quasi-substantive.
+============================================================================
+Predicates:
+    (this1)
+    x1 is the same as x2.
+    x1 is not the same as x2.
+    x1 is big.
+    x1 is small.
+============================================================================
+17. This is good/bad.
+
+this1 is good. this2 is bad.
+
+h0: this1 is good.
+h0: this2 is bad.
+============================================================================
+18. This is a big/small basket (knife, bowl, etc.).
+
+this1 is a big person. this2 is a small person.
+
+h0: there is x1 such that h1.
+h1: x1 is people.
+h1: this1 is one of x1.
+h1: this2 is one of x1.
+h1: this1 is big.
+h1: this2 is small.
+============================================================================
+19. (I saw) these two people; all these people.
+
+john1 sees all these1 people.
+
+h0: for all x1 if h1 then h2.
+ h1: x1 is one of these1.
+ h1: x1 is people.
+h2: john1 sees x1.
+============================================================================
+20. I saw the same person (or: the same people) the day after.
+
+mary1 sees some people now. she saw the same people before.
+
+h0: there is x1 such that h1.
+h1: x1 is people.
+h1: h2 is now.
+h2: mary1 sees x1.
+h1: there is t1 t0 such that h3.
+h3: t0 is now.
+h3: t1 is before t0.
+h3: h4 is at time t1.
+h4: mary1 sees x1.
+============================================================================
+21. It happened at the same place/time, not at another place/time.
+
+this1 happens in a place. this2 happens in the same place, not another place.
+
+h0: there is p1 such that h1.
+h1: h2 is in place p1.
+h2: this1 happens.
+h2: this2 happens.
+h0: h3 is not true.
+h3: there is p2 such that h4.
+h4: h5 is in place p2.
+h5: this2 happens.
+h5: h6 is not true.
+h6: this1 happens.
+============================================================================
+22. She did/said the same (the same thing).
+
+mary1 says something. john1 says the same thing.
+
+h0: there is x1 x2 such that h1.
+h1: mary1 says x1.
+h1: john1 says x2.
+h1: x2 is the same as x1.
+============================================================================
+23. Someone else did it.
+
+john1 does not do this1. someone else does this1.
+
+h0: h1 is not true.
+h1: john1 does this1.
+h0: there is x1 such that h2.
+h2: x1 is someone.
+h2: x1 does this1.
+h2: x1 is not the same as john1.
+============================================================================
+ONE, TWO, SOME, ALL, MANY~MUCH, LITTLE~FEW
+
+Sentence 36 involves a common portmanteau expression ('everything').
+============================================================================
+Predicates:
+    x1 is one of x2.
+    x1 is two of x2.
+    x1 is some of x2.
+    for all x1 if h1 then h2.
+    x1 is many or much.
+    x1 is few or little.
+============================================================================
+24. How many children does she have?
+
+mary1 wants to know how many people are in this1 place.
+
+h0: mary1 wants h1.
+// none.
+h1: if h10 then h15.
+ h10: h11 is not true.
+ h11: there is x1 such that h12.
+ h12: x1 is people.
+ h12: x1 is in place this1.
+h15: mary1 knows h10.
+// some but not many.
+h1: if h20 then h25.
+ h20: there is x1 such that h21.
+ h21: x1 is people.
+ h21: x1 is in place this1.
+ h21: h22 is not true.
+ h22: x1 is many or much.
+h25: mary1 knows h20.
+// many.
+h1: if h30 then h35.
+ h30: there is x1 such that h31.
+ h31: x1 is people.
+ h31: x1 is in place this1.
+ h31: x1 is many or much.
+h35: mary1 knows h30.
+// more than all subsets.
+h1: for all x2 if h40 then h45.
+ h40: there is x1 such that h41.
+ h41: x1 is people.
+ h41: x1 is in place this1.
+ h41: x2 is some of x1.
+ h41: x1 is more than x2.
+h45: mary1 knows h40.
+============================================================================
+25. She has one child (two/many children).
+
+there are two people here.
+
+h0: h1 is here.
+h1: there is x1 x2 such that h2.
+h2: x1 is people.
+h2: x2 is two of x1.
+============================================================================
+26. How much water is there (in that well, bowl, etc.)?
+
+mary1 wants to know how much water1 is inside this1 thing.
+
+h0: mary1 wants h1.
+// none.
+h1: if h10 then h15.
+ h10: h11 is not true.
+ h11: there is x1 such that h12.
+ h12: x1 is of kind water1.
+ h12: x1 is inside this1.
+h15: mary1 knows h10.
+// some but not much.
+h1: if h20 then h25.
+ h20: there is x1 such that h21.
+ h21: x1 is of kind water1.
+ h21: x1 is inside this1.
+ h21: h22 is not true.
+ h22: x1 is many or much.
+h25: mary1 knows h20.
+// much.
+h1: if h30 then h35.
+ h30: there is x1 such that h31.
+ h31: x1 is of kind water1.
+ h31: x1 is inside this1.
+ h31: x1 is many or much.
+h35: mary1 knows h30.
+============================================================================
+27. There is much (little, very little) water here.
+
+there is much water1 here.
+
+h0: h1 is here.
+h1: there is x1 such that h2.
+h2: x1 is of kind water1.
+h2: x1 is many or much.
+============================================================================
+28. Many (or: not many) people live here.
+
+not many people live here.
+
+h0: h1 is here.
+h1: h2 is not true.
+h2: there is x1 such that h3.
+h3: x1 is people.
+h3: x1 lives.
+h3: x1 is many or much.
+============================================================================
+29. (There were many people there.) After that, one/two (of them) left.
+
+before now, many people lived here. one of them does not live here now.
+
+h0: there is x1 x2 t1 t0 such that h1.
+h1: x1 is people.
+h1: x1 is many or much.
+h1: x2 is one of x1.
+h1: t0 is now.
+h1: t1 is before t0.
+h1: h10 is at time t1.
+h10: h11 is here.
+h11: x1 lives.
+h1: h20 is now.
+h20: h21 is not true.
+h21: h22 is here.
+h22: x2 lives.
+============================================================================
+30. Some of these yams (lemons, etc.) are good, some are rotten.
+
+some of these1 things are good, some are bad.
+
+h0: there is x1 x2 such that h1.
+h1: x1 is some of these1.
+h1: x1 is good.
+h1: x2 is some of these1.
+h1: x2 is bad.
+============================================================================
+31. In some places there are lots of fish (rabbits, birds, etc.).
+
+in some places there are many things of this1 kind.
+
+h0: there is p1 x1 such that h1.
+h1: x1 is things.
+h1: x1 is many or much.
+h1: x1 is of kind this1.
+h1: x1 is in place p1.
+============================================================================
+32. There is water here.
+
+there is water1 here.
+
+h0: h1 is here.
+h1: there is x1 such that h2.
+h2: x1 is of kind water1.
+============================================================================
+33. Very few people live there now.
+
+very few people live here now.
+
+h0: h1 is here.
+h0: h1 is now.
+h1: there is x1 such that h2.
+h2: x1 is people.
+h2: x1 lives.
+h2: h3 is very much so.
+h3: x1 is few or little.
+h3: h4 is not true.
+h4: x1 is many or much.
+============================================================================
+34. Many of them went to the east, some went to the west.
+
+many of these1 are in the east1 place. some are in the west1 place.
+
+h0: there is x1 x2 such that h1.
+h1: x1 is some of these1.
+h1: x1 is many or much.
+h1: x1 is in place east1.
+h1: x2 is some of these1.
+h1: x2 is in place west1.
+============================================================================
+35. All his sons (daughters, etc.) are now married.
+
+something good happens to all these1 people.
+
+h0: for all x1 if h1 then h2.
+ h1: x1 is people.
+ h1: x1 is one of these1.
+h2: there is x2 such that h3.
+h3: x2 is good.
+h3: x2 happens to x1.
+============================================================================
+36. The fire burnt everything (e.g. in the house, on the island).
+
+something bad happens to everything in this1 place.
+
+h0: for all x1 if h1 then h2.
+ h1: x1 is things.
+ h1: x1 is in place this1.
+h2: there is x2 such that h3.
+h3: x2 is bad.
+h3: x2 happens to x1.
+============================================================================
+GOOD, BAD, [I~ME], [YOU]
+
+(It is not expected that a dependent clause in the scope of 'good' or 'bad' will necessarily be introduced by the equivalent of 'if'.)
+============================================================================
+Predicates:
+    x1 is good [for someone1].
+    x2 is bad [for someone1].
+    (me1)
+    (you1)
+============================================================================
+37. Good people don't do things like this.
+
+good people do not do things like this1.
+
+h0: for all x1 if h1 then h2.
+ h1: x1 is people.
+ h1: x1 is good.
+h2: h3 is not true.
+h3: there is x2 such that h4.
+h4: x2 is like this1.
+h4: x1 does x2.
+============================================================================
+38. This was good/bad for me.
+
+mary1 says to john1: "this1 is good for me. this1 is bad for you."
+
+h0: mary1 says h1 to john1.
+h1: this1 is good for mary1.
+h1: this1 is bad for john1.
+============================================================================
+39. It is good/bad if someone (or: people) does something like this.
+
+it is bad if someone does something like this1.
+
+h0: if h1 then h3.
+ h1: there is x1 x2 such that h2.
+ h2: x1 is someone.
+ h2: x2 is like this1.
+ h2: x1 does x2.
+h3: h1 is bad.
+============================================================================
+40. I know this person/place well.
+
+mary1 knows much about this1 person.
+
+h0: this1 is people.
+h0: there is x1 such that h1.
+h1: mary1 knows x1 about this1.
+h1: x1 is many or much.
+============================================================================
+41. Some people can do this well, some people can't.
+
+some people can do this1 well, some people cannot.
+
+h0: there is x1 such that h1.
+h1: x1 is people.
+h1: h2 can be true.
+h2: h3 happens.
+h2: h3 is good.
+h3: x1 does this1.
+h0: there is x2 such that h4.
+h4: x2 is people.
+h4: h5 is not true.
+h5: h6 can be true.
+h6: h7 happens.
+h6: h7 is good.
+h7: x2 does this1.
+============================================================================
+THINK, KNOW, WANT, DON'T WANT
+
+'Know (someone)' is no longer regarded as a semantically primitive meaning.
+============================================================================
+Predicates:
+    x1 thinks this1 [about x2].
+    x1 knows this1 [about x2].
+    x1 wants this1.
+    x1 wants this1 not to be true.
+============================================================================
+42. What are you thinking about?
+
+mary1 says to john1: "I want to know what you think about."
+
+h0: mary1 says h1 to john1.
+h1: mary1 wants h2.
+h2: for all x1 if h3 then h5.
+ h3: there is x2 such that h4.
+ h4: john1 thinks x2 about x1.
+h5: mary1 knows h3.
+============================================================================
+43. I thought about it for a long time.
+
+john1 thinks about this1 for a long time.
+
+h0: there is t1 such that h1.
+h1: t1 is a long time.
+h1: h2 is for some time t1.
+h2: there is x1 such that h3.
+h3: john1 thinks x1 about this1.
+============================================================================
+44. This person thinks something bad about me.
+
+mary1 thinks something bad about john1.
+
+h0: there is x1 such that h1.
+h1: mary1 thinks x1 about john1.
+h1: x1 is bad.
+============================================================================
+45. I thought like this: "...."
+
+john1 thinks this: "mary1 sees me."
+
+h0: john1 thinks h1.
+h1: mary1 sees john1.
+============================================================================
+46. Think well about it first (before you do it).
+
+mary1 thinks a lot about this1 before she does it.
+
+h0: there is x1 such that h1.
+h1: x1 is many or much.
+h1: h2 is before h3.
+h2: mary1 thinks x1 about this1.
+h3: mary1 does this1.
+============================================================================
+47. (Where is he now?) I don't know. Maybe Mary knows.
+
+john1 does not know where this1 is. maybe mary1 knows.
+
+h0: h1 is not true.
+h1: there is p1 such that h2.
+h2: john1 knows h3.
+h3: this1 is in place p1.
+h0: maybe h4.
+h4: there is p1 such that h5.
+h5: mary1 knows h6.
+h6: this1 is in place p1.
+============================================================================
+48. He knows much (a lot) about things like this.
+
+mary1 knows a lot about things like this1.
+
+h0: there is x1 x2 such that h1.
+h1: x1 is many or much.
+h1: x2 is things.
+h1: x2 is like this1.
+h1: mary1 knows x1 about x2.
+============================================================================
+49. (She left yesterday). I know.
+
+john1 knows mary1 is not here now.
+
+h0: john1 knows h1.
+h1: there is p0 such that h2.
+h2: p0 is here.
+h2: h3 is now.
+h3: h4 is not true.
+h4: mary1 is in place p0.
+============================================================================
+50. I want (don't want) you to do it.
+
+mary1 wants john1 to do this1.
+
+h0: mary1 wants h1.
+h1: john1 does this1.
+============================================================================
+51. I want (don't want) this to happen.
+
+john1 wants this1 not to happen.
+
+h0: john1 wants h1 not to be true.
+h1: this1 happens.
+============================================================================
+FEEL, SEE, HEAR
+============================================================================
+Predicates:
+    x1 feels this1.
+    x1 sees this1.
+    x1 hears this1.
+============================================================================
+52. When you look at the stars at night, what do you feel?
+
+when mary1 sees something above her, she feels like this1.
+
+h0: there is t1 x1 x2 such that h1.
+h1: h2 is at time t1.
+h2: mary1 sees x1.
+h2: x1 is above mary1.
+h2: mary1 feels x2.
+h2: x2 is like this1.
+============================================================================
+53. When I swallow (something), I feel something very bad in my throat.
+
+when john1 does this1, he feels something very bad inside his body.
+
+h0: there is t1 b1 x1 such that h1.
+h1: h2 is at time t1.
+h2: john1 does this1.
+h2: b1 is the body of john1.
+h2: x1 is inside b1.
+h2: h3 is very much so.
+h3: john1 feels x1.
+h3: x1 is bad.
+============================================================================
+54. At that time (then), I didn't feel anything.
+
+at this1 time, mary1 does not feel anything.
+
+h0: h1 is at time this1.
+h1: h2 is not true.
+h2: there is x1 such that h3.
+h3: mary1 feels x1.
+============================================================================
+55. I don't feel anything bad towards him anymore.
+
+after this1, john1 does not feel something bad if he thinks about mary1.
+
+h0: h1 is not true.
+h1: there is t1 x1 x2 such that h2.
+h2: t1 is after this1.
+h2: h3 is at time t1.
+h3: if h4 then h5.
+ h4: john1 thinks x1 about mary1.
+h5: john1 feels x2.
+h5: x2 is bad.
+============================================================================
+56. I saw something (a dog, bird, etc.) there.
+
+mary1 sees something in this1 place.
+
+h0: there is x1 such that h1.
+h1: x1 is in place this1.
+h1: x1 is things.
+h1: mary1 sees x1.
+============================================================================
+57. (After that), I saw something else.
+
+john1 sees something. after that, he sees something else.
+
+h0: there is x1 x2 x3 such that h1.
+h1: x1 is things.
+h1: x2 is one of x1.
+h1: x3 is one of x1.
+h1: x2 is not the same as x3.
+h1: h2 is before h3.
+h2: john1 sees x2.
+h3: john1 sees x3.
+============================================================================
+58. She was singing - I heard it.
+
+mary1 says something. john1 hears it.
+
+h0: there is x1 such that h1.
+h1: mary1 says x1.
+h1: john1 hears x1.
+============================================================================
+59. I hear something (over there in the bushes).
+
+john1 hears something in this1 place.
+
+h0: there is x1 such that h1.
+h1: x1 is in place this1.
+h1: john1 hears x1.
+============================================================================
+60. I couldn't hear it.
+
+mary1 cannot hear this1.
+
+h0: h1 is not true.
+h1: h2 can be true.
+h2: mary1 hears this1.
+============================================================================
+SAY, WORDS, TRUE
+============================================================================
+Predicates:
+    x1 says this1 [to someone1] [about something1].
+    w1 is words.
+    h1 is true.
+============================================================================
+61. "This is good," I said.
+
+john1 says this1 is good.
+
+h0: john1 says h1.
+h1: this1 is good.
+============================================================================
+62. What did he say?
+
+mary1 wants to know what john1 says.
+
+h0: mary1 wants h1.
+h1: for all x1 if h2 then h3.
+ h2: john1 says x1.
+h3: mary1 knows h2.
+============================================================================
+63. He said something to her, but she didn't hear it.
+
+john1 says something to mary1, but she does not hear it.
+
+h0: there is x1 such that h1.
+h1: h2 is true.
+h1: h3 is not true.
+h2: john1 says x1 to mary1.
+h3: mary1 hears h2.
+============================================================================
+64. If I do this, people can say bad things about me.
+
+if mary1 does this1, people can say bad things about her.
+
+h0: if h1 then h2.
+ h1: mary1 does this1.
+h2: h3 can be true.
+h3: there is x1 x2 such that h4.
+h4: x1 is people.
+h4: x2 is things.
+h4: x2 is bad.
+h4: x1 says x2 about mary1.
+============================================================================
+65. She said the same (the same thing), but in other (i.e. different) words.
+
+john1 says something. mary1 says the same thing with different words.
+
+h0: there is x1 w1 w2 such that h1.
+h1: w1 is words.
+h1: w2 is words.
+h1: w1 is not the same as w2.
+h1: john1 does h2 with w1.
+h2: john1 says x1.
+h1: mary1 does h3 with w2.
+h3: mary1 says x1.
+============================================================================
+66. In language X, the word for 'good' is palya.
+
+these1 people say "something is good" with this1 word.
+
+h0: these1 is people.
+h0: there is w1 such that h1.
+h1: w1 is words.
+h1: this1 is one of w1.
+h1: these1 does h2 with this1.
+h2: these1 says h3.
+h3: there is x1 such that h4.
+h4: x1 is good.
+============================================================================
+67. If you say one more word, ....
+
+If john1 says one more word after this, mary1 will feel bad.
+
+h0: h20 is after h10.
+h10: there is w1 such that h11.
+h11: w1 is words.
+h11: john1 says w1.
+h20: if h21 then h25.
+ h21: there is w2 w3 such that h22.
+ h22: w2 is words.
+ h22: w3 is one of w2.
+ h22: john1 says w3.
+h25: there is x1 such that h26.
+h26: mary1 feels x1.
+h26: x1 is bad.
+============================================================================
+68. That's not true.
+
+this1 is not true.
+
+h0: this1 is not true.
+============================================================================
+DO, HAPPEN, MOVE, TOUCH
+============================================================================
+Predicates:
+    x1 does this1 [to someone1] [with something1].
+    this1 happens [to someone1].
+    x1 moves.
+    x1 touches x2.
+============================================================================
+69. What did you do then (after that)?
+
+john1 wants to know what mary1 does after this1.
+
+h0: john1 wants h1.
+h1: for all x1 if h2 then h4.
+ h2: h3 is after this1.
+ h3: mary1 does x1.
+h4: john1 knows h2.
+============================================================================
+70. Those people did something good for me.
+
+mary1 says: "these1 people do something good for me."
+
+h0: mary1 says h1.
+h1: there is x1 such that h2.
+h2: these1 is people.
+h2: these1 does x1 to mary1.
+h2: x1 is good for mary1.
+============================================================================
+71. What do people do with things like this (a spoon, needle, etc.)?
+
+john1 wants to know what people do with things like this1.
+
+h0: john1 wants h1.
+h1: for all x1 if h2 then h4.
+ h2: there is x2 x3 such that h3.
+ h3: x2 is people.
+ h3: x3 is things.
+ h3: x3 is like this1.
+ h3: x2 does x1 with x3.
+h4: john1 knows h2.
+============================================================================
+72. People do this with a knife (axe, stick, etc.).
+
+people do this1 with a knife1.
+
+h0: there is x1 x2 such that h1.
+h1: x1 is people.
+h1: x2 is of kind knife1.
+h1: x1 does this1 with x2.
+============================================================================
+73. Something good/bad happened to this person (to me).
+
+john1 says: "something good happens to me."
+
+h0: john1 says h1.
+h1: there is x1 such that h2.
+h2: x1 is good.
+h2: x1 happens to john1.
+============================================================================
+74. At that moment, something happened inside him.
+
+at this1 time, in a moment, something happens inside mary1.
+
+h0: h1 is at time this1.
+h1: there is t1 x1 such that h2.
+h2: h3 is in a moment t1.
+h3: h4 is inside mary1.
+h4: x1 happens.
+============================================================================
+75. Something bad happened in that place.
+
+something bad happens in this1 place.
+
+h0: there is x1 such that h1.
+h1: x1 is bad.
+h1: h2 is in place this1.
+h2: x1 happens.
+============================================================================
+76. (Look!) Something is moving over there.
+
+mary1 says: "something moves in this1 place. I want john1 to see it."
+
+h0: mary1 says h1.
+h1: there is x1 such that h2.
+h2: x1 is things.
+h2: x1 is in place this1.
+h2: x1 moves.
+h2: mary1 wants h3.
+h3: john1 sees x1.
+============================================================================
+77. Don't move! (e.g. while putting on a bandaid or removing headlice.)
+
+john1 says to mary1: "I want you not to move."
+
+h0: john1 says h1 to mary1.
+h1: john1 wants h2 not to be true.
+h2: mary1 moves.
+============================================================================
+78. I was very scared. I couldn't move.
+
+mary1 feels something bad. she cannot move.
+
+h0: there is x1 such that h1.
+h1: mary1 feels x1.
+h1: x1 is bad.
+h0: h2 is not true.
+h2: h3 can be true.
+h3: mary1 moves.
+============================================================================
+79. Something was touching my hand.
+
+john1 says: "something touches part of my body."
+
+h0: john1 says h1.
+h1: there is b1 x1 x2 such that h2.
+h2: b1 is the body of john1.
+h2: x1 is part of b1.
+h2: x2 is things.
+h2: x2 touches x1.
+============================================================================
+80. Don't touch it! (It's hot.)
+
+mary1 says to john1: "I want you not to touch this1."
+
+h0: mary1 says h1 to john1.
+h1: mary1 wants h2 not to be true.
+h2: john1 touches this1.
+============================================================================
+THERE IS, (IS) MINE
+============================================================================
+Predicates:
+    there is x1 [x2] [x3] [x4] such that h1.
+    x1 belongs to someone1.
+============================================================================
+81. There is someone in the garden.
+
+there is someone in this1 place.
+
+h0: there is x1 such that h1.
+h1: x1 is someone.
+h1: x1 is in place this1.
+============================================================================
+82. There is/are no (e.g. water/spiders) here.
+
+there is no water1 here.
+
+h0: h1 is here.
+h1: h2 is not true.
+h2: there is x1 such that h3.
+h3: x1 is of kind water1.
+============================================================================
+83. There are no ghosts (unicorns, etc.).
+
+there are no ghosts1.
+
+h0: h1 is not true.
+h1: there is x1 such that h2.
+h2: x1 is of kind ghosts1.
+============================================================================
+84. There are many kinds of nuts (yams, bats, etc.).
+
+there are many kinds of fish1.
+
+h0: there is k1 such that h1.
+h1: k1 is many or much.
+h1: for all k2 if h2 then h3.
+ h2: k2 is one of k1.
+h3: there is x1 such that h4.
+h4: x1 is of kind k2.
+h4: k2 is of kind fish1.
+============================================================================
+85. It's mine.
+
+john1 says: "this1 is mine."
+
+h0: john1 says h1.
+h1: this1 belongs to john1.
+============================================================================
+86. It's not yours. It's mine.
+
+mary1 says to john1: "this1 is not yours. this1 is mine."
+
+h0: mary1 says h1 to john1.
+h1: h2 is not true.
+h2: this1 belongs to john1.
+h1: this1 belongs to mary1.
+============================================================================
+87. I know it's not mine. I want it to be mine.
+
+john1 says to mary1: "I know this1 is not mine. I want it to be mine."
+
+h0: john1 says h1 to mary1.
+h1: john1 knows h2.
+h2: h3 is not true.
+h3: this1 belongs to john1.
+h1: john1 wants h3.
+============================================================================
+BE (SOMEWHERE), BE (SOMEONE/SOMETHING)
+============================================================================
+Predicates:
+    x1 is in place p1.
+    x1 is the same as x2.
+============================================================================
+88. What is on the table? I can't see it.
+
+mary1 wants to know what is below this1 thing. she does not see it.
+
+h0: there is x1 such that h1.
+h1: x1 is below this1.
+h1: mary1 wants h2.
+h2: mary1 knows h3.
+h3: x1 is below this1.
+h1: h2 is not true.
+h4: mary1 sees x1.
+============================================================================
+89. I want to be with my mother (grandfather, father, etc.).
+
+john1 wants to be in the same place as mary1.
+
+h0: john1 wants h1.
+h1: there is p1 such that h2.
+h2: john1 is in place p1.
+h2: mary1 is in place p1.
+h2: john1 is near mary1.
+============================================================================
+90. It was a long time ago. My father was a child at that time.
+
+a long time before now, mary1 was small.
+
+h0: there is t1 t2 t0 such that h1.
+h1: t1 is before t2.
+h1: t2 is a long time.
+h1: t2 is before t0.
+h1: t0 is now.
+h1: h2 is at time t1.
+h2: mary1 is small.
+============================================================================
+91. I don't know what this is.
+
+at this1 time, john1 does not know what this2 is.
+
+h0: h1 is not true.
+h1: there is k1 such that h2.
+h2: h3 is at time this1.
+h3: john1 knows h4.
+h4: this2 is of kind k1.
+// and k1 is a kind he already knew something about.
+h2: h5 is before this1.
+h5: there is x1 such that h6.
+h6: john1 knows x1 about k1.
+============================================================================
+92. I don't know who this is.
+
+at this1 time, mary1 does not know who this2 is.
+
+h0: this2 is someone.
+h0: h1 is not true.
+h1: there is x1 such that h2.
+h2: h3 is at time this1.
+h3: mary1 knows h4.
+h4: this2 is the same as x1.
+// and x1 is someone she already knew something about.
+h2: h5 is before this1.
+h5: there is x2 such that h6.
+h6: mary1 knows x2 about x1.
+============================================================================
+LIVE, DIE
+============================================================================
+Predicates:
+    x1 lives.
+    x1 dies.
+============================================================================
+93. (In story of olden days) These people lived for a long time.
+
+a long time before now, these1 people lived for a long time.
+
+h0: there is t1 t2 t0 such that h1.
+h1: t1 is a long time.
+h1: t2 is a long time.
+h1: t1 is before t2.
+h1: t2 is before t0.
+h1: t0 is now.
+h1: h2 is for some time t1.
+h2: these1 is people.
+h2: these1 lives.
+============================================================================
+94. Turtles (horses, whales, etc.) live for a long time.
+
+turtles1 live for a long time.
+
+h0: there is t1 x1 such that h1.
+h1: t1 is a long time.
+h1: h2 is for some time t1.
+h2: x1 lives.
+h1: turtles1 is like x1.
+============================================================================
+95. At that time she was living with her mother.
+
+at this1 time, john1 lives in the same place as mary1.
+
+h0: h1 is at time this1.
+h1: there is p1 such that h2.
+h2: h3 is in place p1.
+h3: john1 lives.
+h2: h4 is in place p1.
+h4: mary1 lives.
+h2: h3 is near h4.
+============================================================================
+96. Fish live in the sea.
+
+fish1 live where there is water1.
+
+h0: for all x1 if h1 then h2.
+ h1: x1 is of kind fish1.
+ h1: x1 lives.
+h2: there is p1 x2 such that h3.
+h3: x1 is in place p1.
+h3: x2 is in place p1.
+h3: x2 is of kind water1.
+============================================================================
+97. All people die.
+
+all people die.
+
+h0: for all x1 if h1 then h3.
+ h1: there is x2 such that h2.
+ h2: x2 is people.
+ h2: x1 is one of x2.
+h3: there is t1 such that h4.
+h4: h5 is at time t1.
+h5: x1 dies.
+============================================================================
+98. These people died a long time ago.
+
+these1 people died a long time before now.
+
+h0: these1 is people.
+h0: there is t1 t0 such that h1.
+h1: t1 is a long time.
+h1: t1 is before t0.
+h1: t0 is now.
+h1: h2 is before t1.
+h2: for all x1 if h3 then h4.
+ h3: x1 is one of these1.
+h4: x1 dies.
+============================================================================
+TIME~WHEN, NOW, BEFORE, AFTER, A LONG TIME, A SHORT TIME, FOR SOME TIME, IN ONE MOMENT
+
+Sentences 102 and 103 involve common portmanteau expressions ('sometimes', 'always'). Note that BEFORE and AFTER may have adverbial, rather than adpositional, syntax.
+============================================================================
+Predicates:
+    h1 is at time t1.
+    t0 is now.
+    h1 is before t1.
+    h1 is after t1.
+    t1 is a long time.
+    t1 is a short time.
+    h1 is for some time t1.
+    h1 is in a moment t1.
+============================================================================
+99. When did you do it? I did it when everyone was asleep.
+
+someone wants to know when john1 does this1. he does it when mary1 is here.
+
+h0: there is x1 such that h1.
+h1: x1 is someone.
+h1: x1 wants h2.
+h2: for all t1 if h3 then h5.
+ h3: h4 is at time t1.
+ h4: john1 does this1.
+h5: x1 knows h3.
+h0: for all t2 if h6 then h8.
+ h6: h7 is at time t2.
+ h7: john1 does this1.
+h8: h9 is at time t2.
+h9: there is p0 such that h10.
+h10: mary1 is in place p0.
+h10: p0 is here.
+============================================================================
+100. I don't know when it happened.
+
+mary1 does not know when this1 happens.
+
+h0: there is t1 such that h1.
+h1: h2 is at time t1.
+h2: this1 happens.
+h1: h3 is not true.
+h3: mary1 knows h4.
+h4: h5 is at time t1.
+h5: this1 happens.
+============================================================================
+101. At the same time, something happened to me.
+
+something happens to john1. at the same time, something happens to mary1.
+
+h0: there is t1 x1 x2 such that h1.
+h1: h2 is at time t1.
+h2: x1 happens to john1.
+h1: h3 is at time t1.
+h3: x2 happens to mary1.
+============================================================================
+102. Sometimes I drink coffee in the morning, sometimes I drink tea.
+
+sometimes mary1 does this1. sometimes she does this2.
+
+h0: there is t1 t2 t3 such that h1.
+h1: h2 is for some time t3.
+h2: t1 is some of t3.
+h2: h3 is at time t1.
+h3: mary1 does this1.
+h2: t2 is some of t3.
+h2: h4 is at time t2.
+h4: mary1 does this2.
+============================================================================
+103. This dog always barks at night.
+
+when john1 is here, this1 always happens.
+
+h0: for all t1 if h1 then h4.
+ h1: h2 is at time t1.
+ h2: there is p0 such that h3.
+ h3: john1 is in place p0.
+ h3: p0 is here.
+h4: h5 is at time t1.
+h5: this1 happens.
+============================================================================
+104. They live in X now. They lived in Y before (this).
+
+mary1 lives here now. she lived in this1 place before.
+
+h0: h1 is now.
+h0: h1 is here.
+h1: mary1 lives.
+h0: there is t0 such that h2.
+h2: t0 is now.
+h2: h3 is before t0.
+h2: h3 is in place this1.
+h3: mary1 lives.
+============================================================================
+105. It happened beforehand/afterwards.
+
+john1 does something to mary1. this1 happens to john1 afterwards.
+
+h0: h3 is after h1.
+h1: there is x1 such that h2.
+h2: john1 does x1 to mary1.
+h3: this1 happens to john1.
+============================================================================
+106. John was born before/after Harry (was born).
+
+mary1 was alive before john1 was.
+
+h0: there is t1 t2 such that h1.
+h1: t1 is before t2.
+h1: h2 is for some time t1.
+h2: mary1 lives.
+h2: h3 is not true.
+h3: john1 lives.
+h1: h4 is for some time t2.
+h4: john1 lives.
+============================================================================
+107. This happened a long time ago.
+
+this1 happened a long time before now.
+
+h0: there is t1 t2 t0 such that h1.
+h1: t1 is before t2.
+h1: t2 is a long time.
+h1: t2 is before t0.
+h1: t0 is now.
+h1: h2 is at time t1.
+h2: this1 happens.
+============================================================================
+108. He was only there for a short time, but she was there for a long time.
+
+mary1 is here for a long time. john1 is only here for a short time.
+
+h0: there is p0 t1 t2 such that h1.
+h1: p0 is here.
+h1: t1 is a long time.
+h1: h2 is for some time t1.
+h2: mary1 is in place p0.
+h1: t2 is a short time.
+h1: h3 is for some time t2.
+h3: john1 is in place p0.
+h1: h4 is not true.
+h4: there is t3 such that h5.
+h5: t3 is a long time.
+h5: h6 is for some time t3.
+h6: john1 is in place p0.
+============================================================================
+109. She thought about it for some time.
+
+john1 thinks about this1 for some time.
+
+h0: there is t1 such that h1.
+h1: h2 is for some time t1.
+h2: there is x1 such that h3.
+h3: john1 thinks x1 about this1.
+============================================================================
+110. It happened some time ago (i.e. some time before).
+
+this1 happened some time before now.
+
+h0: there is t1 t2 t0 such that h1.
+h1: t1 is before t2.
+h1: t2 is a short time.
+h1: t2 is before t0.
+h1: t0 is now.
+h1: h2 is at time t1.
+h2: this1 happens.
+============================================================================
+111. It happened in one moment.
+
+this1 happens in a moment.
+
+h0: there is t1 such that h1.
+h1: h2 is in a moment t1.
+h2: this1 happens.
+============================================================================
+PLACE~WHERE, HERE, NEAR, FAR, ABOVE, BELOW, ON (THIS) SIDE, INSIDE
+
+There may be several words for positional relationships like ABOVE and BELOW, cf. English below, under, beneath, underneath. Try to find one which is purely about relative position, without implying anything about visibility or "covering".
+============================================================================
+Predicates:
+    p1 is a place.
+    p0 is here.
+    x1 is near x2.
+    x1 is far from x2.
+    x1 is above x2.
+    x1 is below x2.
+    s1 is one side of x1 [and s2 is the other side].
+    x1 is inside x2.
+============================================================================
+112. Where is he now?
+
+mary1 wants to know where john1 is now.
+
+h0: there is p1 such that h1.
+h1: h2 is true.
+h2: h3 is now.
+h3: john1 is in place p1.
+h1: mary1 wants h4.
+h4: mary1 knows h2.
+============================================================================
+113. It didn't happen here. It happened somewhere else (in another place).
+
+this1 does not happen here. it happens in another place.
+
+h0: h1 is not true.
+h1: h2 is here.
+h2: this1 happens.
+h0: there is p1 such that h3.
+h3: h4 is in place p1.
+h4: this1 happens.
+h3: h5 is not true.
+h5: h4 is here.
+============================================================================
+114. Is it far from here?
+
+mary1 wants to know if this1 place is far from here.
+
+h0: there is p0 such that h1.
+h1: p0 is a place.
+h1: p0 is here.
+h1: this1 is a place.
+h1: mary1 wants h2.
+h2: if h3 then h4.
+ h3: this1 is far from p0.
+h4: mary1 knows h3.
+h2: if h5 then h7.
+ h5: h5 is not true.
+ h6: this1 is far from p0.
+h7: mary1 knows h5.
+============================================================================
+115. Was Fred standing (sitting, etc.) near John?
+
+john1 wants to know if he is near mary1.
+
+h0: john1 wants h1.
+h1: if h2 then h3.
+ h2: john1 is near mary1.
+h3: john1 knows h2.
+h1: if h4 then h6.
+ h4: h5 is not true.
+ h5: john1 is near mary1.
+h6: john1 knows h4.
+============================================================================
+116. The house (camp, etc.) is near the river.
+
+these1 people are near this1 place.
+
+h0: this1 is a place.
+h0: these1 is people.
+h0: these1 is near this1.
+============================================================================
+117. It is far above the ground.
+
+john1 sees this1 far above him.
+
+h0: this1 is above john1.
+h0: this1 is far from john1.
+h0: john1 sees this1.
+============================================================================
+118. The head is above other parts of the body.
+
+this1 part of the body of mary1 is above all other parts.
+
+h0: there is b1 such that h1.
+h1: b1 is the body of mary1.
+h1: this1 is part of b1.
+h1: for all x1 if h2 then h4.
+ h2: x1 is part of b1.
+ h2: h3 is not true.
+ h3: x1 is part of this1.
+h4: this1 is above x1.
+============================================================================
+119. The feet are below other parts of the body.
+
+these1 parts of the body of john1 are below all other parts.
+
+h0: there is b1 such that h1.
+h1: b1 is the body of john1.
+// these1 are parts of the body of john1.
+h1: for all x1 if h2 then h3.
+ h2: x1 is one of these1.
+h3: x1 is part of b1.
+// these1 are below all other parts of the body.
+h1: for all x2 if h4 then h6.
+ h4: x2 is part of b1.
+ h4: h5 is not true.
+ h5: x2 is part of these1.
+h6: these1 is below x2.
+// no part of the body is below these1.
+h1: h7 is not true.
+h7: there is x3 such that h8.
+h8: x3 is part of b1.
+h8: x3 is below these1.
+============================================================================
+120. John is now (standing/sitting) on this side (of me).
+
+mary1 says: "john1 is near this1 side of me."
+
+h0: mary1 says h1.
+h1: this1 is one side of mary1.
+h1: john1 is near this1.
+============================================================================
+121. Mary was (standing/sitting) on my right-hand side, Sally was on my left-hand side.
+
+someone is near one side of john1, mary1 is near the other side.
+
+h0: there is s1 s2 x1 such that h1.
+h1: s1 is one side of john1 and s2 is the other side.
+h1: x1 is someone.
+h1: x1 is near s1.
+h1: mary1 is near s2.
+============================================================================
+122. They live on the other side of the river (mountain, etc.)
+
+mary1 lives on one side of this1 place, john1 lives on the other side.
+
+h0: this1 is a place.
+h0: there is s1 s2 p1 p2 such that h1.
+h1: s1 is one side of this1 and s2 is the other side.
+h1: h2 is in place p1.
+h2: mary1 lives.
+h1: h3 is in place p2.
+h3: john1 lives.
+h1: h4 is more than h5.
+h4: p1 is near s1.
+h5: p1 is near s2.
+h1: h6 is more than h7.
+h6: p2 is near s2.
+h7: p2 is near s1.
+============================================================================
+123. There were people standing on both sides of the road.
+
+there are people on both sides of this1 thing.
+
+h0: there is x1 x2 such that h1.
+h1: x1 is people.
+h1: x2 is people.
+h1: there is x3 s1 s2 such that h2.
+h2: x3 is things.
+h2: this1 is one of x3.
+h2: s1 is one side of this1 and s2 is the other side.
+h2: x1 is near s1.
+h2: x2 is near s2.
+============================================================================
+124. There is an insect inside this (e.g. walnut, apple).
+
+something lives inside this1 thing.
+
+h0: there is x1 x2 such that h1.
+h1: x1 lives.
+h1: x2 is things.
+h1: this1 is one of x2.
+h1: x1 is inside this1.
+============================================================================
+125. Don't open it. You don't know what is inside.
+
+john1 does not see inside this1 thing. he does not know what is inside.
+
+h0: there is x1 such that h1.
+h1: x1 is things.
+h1: this1 is one of x1.
+h1: for all p1 if h2 then h3.
+ h2: p1 is a place.
+ h2: p1 is inside this1.
+h3: h4 is not true.
+h4: john1 sees p1.
+h1: for all x2 if h5 then h6.
+ h5: x2 is things.
+ h5: x2 is inside this1.
+h6: h7 is not true.
+h7: john1 knows h5.
+============================================================================
+126. Some people were in front of the house, others were inside.
+
+mary1 sees some people near this1 thing. other people are inside it.
+
+h0: there is p1 p2 x1 such that h1.
+h1: p1 is people.
+h1: p2 is people.
+h1: p1 is not the same as p2.
+h1: x1 is things.
+h1: this1 is one of x1.
+h1: mary1 sees h2.
+h2: p1 is near this1.
+h2: h3 is not true.
+h3: p1 is inside this1.
+h1: p2 is inside this1.
+============================================================================
+BECAUSE, IF, MAYBE, CAN, [NOT]
+============================================================================
+Predicates:
+    h1 is because of this1.
+    if h1 then h2.
+    maybe h1.
+    h1 can be true.
+    h1 is not true.
+============================================================================
+127. There was a lot of noise (shouting, etc.). Because of this, I couldn't sleep.
+
+john1 hears many things. because of this, he cannot say anything.
+
+h0: h20 is because of h10.
+h10: there is x1 such that h11.
+h11: x1 is things.
+h11: x1 is many or much.
+h11: john1 hears x1.
+h20: h21 is not true.
+h21: h22 can be true.
+h22: there is x2 such that h23.
+h23: john1 says x2.
+============================================================================
+128. Why are you crying? Because he hit me.
+
+mary1 wants to know why john1 feels bad. it is because something touches him.
+
+h0: mary1 wants h1.
+h1: for all x1 if h2 then h3.
+ h2: h10 is because of x1.
+h3: mary1 knows h2.
+h0: h10 is because of h20.
+h10: there is x2 such that h11.
+h11: john1 feels x2.
+h11: x2 is bad.
+h20: there is x3 such that h21.
+h21: x3 is things.
+h21: x3 touches john1.
+============================================================================
+129. If someone does this, something very bad can happen to people here.
+
+if someone does this1, something very bad can happen to these1 people.
+
+h0: these1 is people.
+h0: if h1 then h3.
+ h1: there is x1 such that h2.
+ h2: x1 is someone.
+ h2: x1 does this1.
+h3: h4 can be true.
+h4: there is x2 such that h5.
+h5: x2 happens to these1.
+h5: h6 is very much so.
+h6: x2 is bad.
+============================================================================
+130. Maybe he will come tomorrow, maybe he won't (come tomorrow).
+
+maybe mary1 will do this1 after now. maybe she will not.
+
+h0: maybe h1.
+h1: h3 is true.
+h0: maybe h2.
+h2: h3 is not true.
+h3: there is t0 such that h4.
+h4: t0 is now.
+h4: h5 is after t0.
+h5: mary1 does this1.
+============================================================================
+131. I can't do it now, maybe my brother (friend, etc.) can.
+
+john1 cannot do this1 now. maybe mary1 can do it now.
+
+h0: h1 is not true.
+h1: h2 is now.
+h2: h3 can be true.
+h3: john1 does this1.
+h0: maybe h4.
+h4: h5 is now.
+h5: h6 can be true.
+h6: mary1 does this1.
+============================================================================
+132. I can't do it now, but I can do it later.
+
+mary1 cannot do this1 now, but she can do it later.
+
+h0: h1 is now.
+h1: h2 is not true.
+h2: h3 can be true.
+h3: mary1 does this1.
+h0: there is t0 such that h4.
+h4: t0 is now.
+h4: h5 is after t0.
+h5: h6 can be true.
+h6: mary1 does this1.
+============================================================================
+133. I can't not do it (i.e. I have to do it).
+
+it cannot be true that john1 does not do this1.
+
+h0: h1 is not true.
+h1: h2 can be true.
+h2: h3 is not true.
+h3: john1 does this1.
+============================================================================
+134. I can't move my fingers (hands, etc.) now.
+
+mary1 cannot move this1 part of her body now.
+
+h0: there is b1 such that h1.
+h1: b1 is the body of mary1.
+h1: this1 is part of b1.
+h1: h2 is now.
+h2: h3 is not true.
+h3: h4 can be true.
+h4: mary1 does h5.
+h5: this1 moves.
+============================================================================
+VERY, MORE
+============================================================================
+Predicates:
+    h1 is very much so.
+    this1 is more than this2.
+============================================================================
+135. It is very good/bad/big/small.
+
+this1 is very small.
+
+h0: h1 is very much so.
+h1: this1 is small.
+============================================================================
+136. This place (e.g. Gundaroo) is very far from here.
+
+this1 place is very far from here.
+
+h0: there is p0 such that h1.
+h1: p0 is a place.
+h1: p0 is here.
+h1: this1 is a place.
+h1: h2 is very much so.
+h2: this1 is far from p0.
+============================================================================
+137. The stars (moon, etc.) are very very far.
+
+these1 things are very very far from here.
+
+h0: there is p0 such that h1.
+h1: p0 is a place.
+h1: p0 is here.
+h1: these1 is things.
+h1: h2 is very much so.
+h2: h3 is very much so.
+h3: these1 is far from p0.
+============================================================================
+138. When it happened to him, he felt something very very bad.
+
+when this1 happens to mary1, she feels something very very bad.
+
+h0: there is t1 x1 such that h1.
+h1: h2 is at time t1.
+h2: this1 happens to mary1.
+h2: mary1 feels x1.
+h2: h3 is very much so.
+h3: h4 is very much so.
+h4: x1 is bad.
+============================================================================
+139. I very much want to do this.
+
+john1 very much wants to do this1.
+
+h0: h1 is very much so.
+h1: john1 wants h2.
+h2: john1 does this1.
+============================================================================
+140. More! (e.g. a child crying for food.)
+
+some things are near mary1. she wants more.
+
+h0: there is x1 such that h1.
+h1: x1 is things.
+h1: for all x2 if h2 then h3.
+ h2: x2 is near mary1.
+h3: x2 is some of x1.
+h1: mary1 wants h4.
+h4: there is x3 such that h5.
+h5: x3 is more than x1.
+h5: x3 is near mary1.
+============================================================================
+141. (I don't know much about it.) I want to know more.
+
+john1 knows something about this1. he wants to know more.
+
+h0: there is x1 such that h1.
+h1: john1 knows x1 about this1.
+h1: john1 wants h2.
+h2: there is x2 such that h3.
+h3: x2 is more than x1.
+h3: john1 knows x2 about this1.
+============================================================================
+142. I want to see more.
+
+mary1 sees some things. she wants to see more.
+
+h0: there is x1 such that h1.
+h1: x1 is things.
+h1: for all x2 if h2 then h3.
+ h2: mary1 sees x2.
+h3: x2 is some of x1.
+h1: mary1 wants h4.
+h4: there is x3 such that h5.
+h5: x3 is more than x1.
+h5: mary1 sees x3.
+============================================================================
+143. She doesn't live here anymore.
+
+john1 lived here before now. he does not live here anymore.
+
+h0: there is p0 t0 such that h1.
+h1: p0 is here.
+h1: t0 is now.
+// before now.
+h1: h2 is before t0.
+h2: john1 is in place p0.
+h2: john1 lives.
+// now.
+h1: h3 is now.
+h3: h4 is not true.
+h4: john1 is in place p0.
+h4: john1 lives.
+// after now.
+h1: for all t1 if h5 then h6.
+ h5: t1 is after t0.
+h6: h7 is at time t1.
+h7: h8 is not true.
+h8: john1 is in place p0.
+h8: john1 lives.
+============================================================================
+144. I want one more.
+
+these1 things belong to mary1 now. she wants one more.
+
+h0: these1 is things.
+h0: h1 is now.
+h1: these1 belongs to mary1.
+h1: mary1 wants h2.
+h2: there is t0 x1 x2 such that h3.
+h3: t0 is now.
+h3: x2 is things.
+h3: x1 is one of x2.
+h3: h4 is at time t0.
+h4: h5 is not true.
+h5: x1 belongs to mary1.
+h3: h6 is after t0.
+h6: x1 belongs to mary1.
+============================================================================
+LIKE
+============================================================================
+Predicates:
+    x1 is like x2.
+============================================================================
+145. This child is not like other children.
+
+this1 small person is not like other small people.
+
+h0: there is x1 such that h1.
+h1: x1 is people.
+h1: this1 is one of x1.
+h1: this1 is small.
+h1: for all x2 if h2 then h4.
+ h2: there is x3 such that h3.
+ h3: x3 is people.
+ h3: x2 is one of x3.
+ h3: x2 is small.
+ h3: x2 is not the same as this1.
+h4: h5 is not true.
+h5: this1 is like x2.
+============================================================================
+146. This is like lilac (or: any plant), but it is not lilac.
+
+this1 is like lilac1, but it is not lilac1.
+
+h0: there is k1 such that h1.
+h1: this1 is of kind k1.
+h1: k1 is like lilac1.
+h0: h2 is not true.
+h2: this1 is of kind lilac1.
+============================================================================
+147. At a time like this; in a place like this.
+
+john1 lives at a time like this1 in a place like this2.
+
+h0: there is t1 p1 such that h1.
+h1: t1 is like this1.
+h1: p1 is like this2.
+h1: h2 is at time t1.
+h1: h2 is in place p1.
+h2: john1 lives.
+============================================================================
+148. He did it (sang, danced, etc.) like this: ....
+
+mary1 moves. she says: "john1 moves like this."
+
+h0: mary1 does h1.
+h1: mary1 moves.
+h0: mary1 says h2.
+h2: john1 does h3.
+h3: john1 moves.
+h2: h3 is like h1.
+============================================================================
+149. It happened like this: ....
+
+something happens like this: john1 touches some things. then they die.
+
+h0: there is x1 such that h1.
+h1: x1 happens.
+h1: x1 is like h2.
+h2: there is x2 such that h3.
+h3: h5 is after h4.
+h4: john1 touches x2.
+h5: x2 dies.
+============================================================================
+150. She sang like this: .... (to demonstrate loudness, pitch, voice quality, etc.)
+
+mary1 says something. she does it like this1.
+
+h0: mary1 does h1.
+h1: there is x1 such that h2.
+h2: mary1 says x1.
+h0: h1 is like this1.
+============================================================================
+
+Notes:
+
+[#] Some primes/predicates are subjective or depend on context (for example, a small elephant is bigger than a big mouse): LIKE, MANY and FEW, BIG and SMALL, NEAR and FAR, LONG TIME and SHORT TIME.
+
+[#] For some predicates, variables must represent singular, plural or mass nouns (non-empty collections, plural quantification): x1 is one of x4. x2 is two of x4. x3 is some of x4. x3 is few or little. x4 is many or much.
+
+[#] Predicates can interpret plural arguments in a collective or distributive way. Collective: Three people carried one piano. (They all did it together). Distributive: Three people live here. (Each person lives here.)
+
+[#] The pronouns I~ME, YOU and THIS are replaced with an explicit reference to the person or thing indicated by the conversational context (john1, mary1, etc.). 
+
+[#] The primes MORE and THE SAME compare against an object implied by context. The predicates, however, take two arguments and explicitly identify the compared objects: x1 is more than x2. x1 is the same as x2.
+
+[#] MORE can compare quantity or degree. Quantity: x1 is one person. x2 is two people. x2 is more than x1. Degree: h1: tree1 is near house1. h2: tree2 is near house1. h0: h1 is more than h2.
+
+[#] If "x1 is of kind k1" is true, then assertions about k1 are claims about a typical instance of this KIND (characteristics shared by most or all individuals of this KIND). Assertions about x1 are claims about a particular individual.
+
+[#] The predicate "t0 is now" asserts that t0 is the time of utterance or the time specified by context. (Eighty years ago, my father was young.) Likewise, "p0 is here" asserts that p0 is the place of utterance or the place specified by context. These predicates can be used in the definition of a semantic molecule to reference the time and place of the context in which the molecule is used.
+
+[#] Questions are paraphrased as wanting to know something (which person does it, what kind of thing it is, the place or time it happens, etc.).
+
+[#] The predicate "h0: for all x1 if h10 then h20" can be rewritten as:
+
+    h0: h1 is not true.
+    h1: there is x1 such that h2.
+    h2: h10 is true.
+    h2: h20 is not true.
+
+[#] For better readability, the condition clause is indented for if-then statements ("if h1 then h2" and "for all x1 if h1 then h2").
+
+[#] For the 150 sentences above, MRS is written using only predicates that represent a single NSM prime. For better readability, simple molecules could be defined in MRS for some common combinations of predicates. For example, the molecule "this1 cannot be true" could be defined as:
+
+    h0: h1 is here.
+    h0: h1 is now.
+    h1: h2 is not true.
+    h2: this1 can be true.
+
+[#] Using the predicates for NSM primes and simple molecules, more complex molecules could be defined in MRS for all the words in the Minimal English vocabulary.
+
+============================================================================
