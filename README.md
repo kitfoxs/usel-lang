@@ -212,3 +212,16 @@ USEL isn't just a language — it's infrastructure for the next generation of AI
 *Finishing what Leibniz started. 350 years later.* 🔮
 
 </div>
+
+---
+
+## 🔬 Research bridge: USEL × Natural Language Autoencoders
+
+The `src/ai/nla-bridge.ts` module provides bidirectional conversion between
+the natural-language explanations produced by Anthropic's Natural Language
+Autoencoders (Fraser-Taliente et al., 2026) and USEL chess notation. This
+enables interpretability researchers to use USEL as a constrained-vocabulary
+lens over LLM activation explanations.
+
+See: [`USEL-Lens`](https://github.com/kitfoxs/usel-nla-lens) — companion repo with
+end-to-end pipeline, paper, and demo.
