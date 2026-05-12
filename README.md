@@ -140,8 +140,7 @@ usel-lang/
 │   │   └── USEL_TILE_EDITOR_MOCKUP.html ← Visual mockup
 │   ├── validation/
 │   │   ├── 150_SENTENCES_USEL_TRANSLATION.md ← All 150 NSM sentences in USEL
-│   │   ├── DAVID_BULLOCK_Q2_Q3_Q4_RESPONSES.md ← Comprehension, visuals, use cases
-│   │   └── 150_canonical_sentences_MRS.txt ← Bullock's MRS representations
+│   │   └── 150_canonical_sentences_MRS.txt ← MRS representations of the 150 NSM sentences
 │   └── experiments/
 │       └── USEL_V2_EXPERIMENTS.md ← 6 experiment designs
 ├── CONTRIBUTING.md
